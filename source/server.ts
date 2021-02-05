@@ -2,7 +2,7 @@ import http from 'http';
 import express from 'express';
 import logging from './config/logging';
 import config from './config/config';
-import budgetRoutes from './routes/budget';
+import entryRoutes from './routes/entry';
 import categoryRoutes from './routes/category';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -54,7 +54,7 @@ router.use((req, res, next) => {
 });
 
 /** Routes go here */
-router.use('/api', budgetRoutes);
+router.use('/api/entry', entryRoutes);
 router.use('/api/category', categoryRoutes);
 
 /** Error handling */
