@@ -1,5 +1,5 @@
 export default interface IEntry {
-    _id: any;
+    _id?: any;
     date: Date;
     description: String;
     amount: number;
