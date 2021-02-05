@@ -1,4 +1,4 @@
-export default interface IBudgetEntry {
+export default interface IEntry {
     _id: any;
     date: Date;
     description: String;
