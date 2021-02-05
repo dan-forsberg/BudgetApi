@@ -1,24 +1,30 @@
 import http from 'http';
 import express from 'express';
+import cors from 'cors';
+import { Sequelize } from 'sequelize';
+
 import logging from './config/logging';
 import config from './config/config';
 import entryRoutes from './routes/entry';
 import categoryRoutes from './routes/category';
-import mongoose from 'mongoose';
-import cors from 'cors';
+
 
 const NAMESPACE = 'Server';
 const router = express();
 
-/** Connect to Mongo */
-mongoose
-    .connect(config.mongo.url, config.mongo.options)
-    .then((result) => {
-        logging.info(NAMESPACE, 'Mongo Connected');
-    })
-    .catch((error) => {
-        logging.error(NAMESPACE, error.message, error);
-    });
+/** Connect to MariaDB */
+const sequelize = new Sequelize(
+    config.sql.database, config.sql.username, config.sql.password,
+    {
+        host: config.sql.host,
+        dialect: 'mariadb'
+    }
+);
+sequelize.authenticate().then(() => {
+    logging.info(NAMESPACE, "MariaDB connected successfully!");
+}).catch((err) => {
+    logging.error(NAMESPACE, "MariaDB unsuccessfully connected.", err)
+});
 
 /** Log the request */
 router.use((req, res, next) => {
