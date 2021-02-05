@@ -1,10 +1,10 @@
-class NoCategoryError extends Error {
+export class NoCategoryError extends Error {
     constructor(message: string) {
         super(message);
     }
 }
 
-class ParameterError extends Error {
+export class ParameterError extends Error {
     constructor(message: string) {
         super(message);
     }

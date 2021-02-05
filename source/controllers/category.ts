@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import logging from '../config/logging';
 import Category from '../models/category';
+import { NoCategoryError } from '../interfaces/errors';
 
 const workspace = "category-ctrl"
 
@@ -17,12 +18,15 @@ const getCategories = async (req: Request, res: Response) => {
 const newCategory = async (req: Request, res: Response) => {
     try {
         const reqCategory = req.body.category;
+        console.log(reqCategory);
         if (!reqCategory) {
             throw new NoCategoryError("No new category in body.");
         }
 
-        const newCategory = new Category(reqCategory);
+        const newCategory = new Category({ category: reqCategory });
         const result = await newCategory.save();
+
+        console.log(result);
 
         res.status(201).json(result);
     } catch (err) {
