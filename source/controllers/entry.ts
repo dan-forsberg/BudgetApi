@@ -19,7 +19,7 @@ const addEntry = async (req: Request, res: Response) => {
     /*
     * Request should look like
     * entries: [{
-    *   date: 2021-03-01 or 2021-03-31, or somewhere in between
+    *   date: 2021-03-01. 2021-03-31, somewhere in between or just 2021-03
     *   description: "Lön"
     *   amount: 1000
     *   category: {id of Dan}
