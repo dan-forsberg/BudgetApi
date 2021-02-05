@@ -1,6 +1,17 @@
+import { DataTypes } from "sequelize";
+import { sequelize } from "../sql";
 
-import IEntry from '../interfaces/entry';
+const Entry = sequelize.define('Entry', {
+    category: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    ID: {
+        type: DataTypes.NUMBER,
+        allowNull: false,
+        unique: true
+    }
+});
 
 
-
-export default {};
+export default { Entry };
