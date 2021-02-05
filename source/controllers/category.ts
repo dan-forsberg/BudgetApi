@@ -7,7 +7,8 @@ const workspace = "category-ctrl"
 
 const getCategories = async (req: Request, res: Response) => {
     try {
-        let categories = await Category.find();
+        //let categories = await Category.find();
+        let categories = null;
         res.status(200).json({ categories: categories });
     } catch (ex) {
         logging.error(workspace, "Could not fetch categories", ex.message);
@@ -23,12 +24,12 @@ const newCategory = async (req: Request, res: Response) => {
             throw new NoCategoryError("No new category in body.");
         }
 
-        const newCategory = new Category({ category: reqCategory });
-        const result = await newCategory.save();
+        //const newCategory = new Category({ category: reqCategory });
+        //const result = await newCategory.save();
 
-        console.log(result);
+        //console.log(result);
 
-        res.status(201).json(result);
+        res.status(201);//.json(result);
     } catch (err) {
         if (err instanceof NoCategoryError) {
             res.status(400).json(err.message);

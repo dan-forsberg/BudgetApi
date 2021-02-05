@@ -7,8 +7,8 @@ const workspace = "entry-ctrl"
 
 const getEntriesForMonth = async (req: Request, res: Response) => {
     try {
-        const result = await Entry.find();
-        res.status(200).json(result);
+        //const result = await Entry.find();
+        res.status(200)//.json(result);
     } catch (err) {
         logging.error(workspace, "Could not get entries.", err.message);
         res.status(500);
@@ -40,9 +40,9 @@ const addEntry = async (req: Request, res: Response) => {
                     `Missing either parameters in entries[${i}]`);
             }
         }
-        const result = await Entry.insertMany(entries);
-        console.log(result);
-        res.status(201).json(result);
+        //const result = await Entry.insertMany(entries);
+        //console.log(result);
+        res.status(201)//.json(result);
     } catch (err) {
         if (err instanceof ParameterError) {
             res.status(400).json(err.message);
