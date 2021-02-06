@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import logging from '../config/logging';
-import Category from '../models/category';
+import { Category } from '../models/category';
 import { NoCategoryError } from '../interfaces/errors';
 
 const workspace = "category-ctrl"

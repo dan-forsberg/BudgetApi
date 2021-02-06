@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import logging from '../config/logging';
 import { ParameterError } from '../interfaces/errors';
-import Entry from '../models/entry';
+import { Entry } from '../models/entry';
 
 const workspace = "entry-ctrl"
 
