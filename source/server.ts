@@ -1,20 +1,33 @@
 import http from 'http';
 import express from 'express';
 import cors from 'cors';
-import { connect } from "./sql";
 
 import logging from './config/logging';
 import config from './config/config';
 import entryRoutes from './routes/entry';
 import categoryRoutes from './routes/category';
 
-import Entry from "./models/entry";
+import { Entry } from "./models/entry";
+import { MariaDB } from "./sql";
+import { Category } from './models/category';
 
 const NAMESPACE = 'Server';
 const router = express();
 
-/* Connect to MariaDB or crash server if not successful.*/
-connect();
+
+/** Connect to MariaDB */
+MariaDB.authenticate().then(() => {
+    logging.info(NAMESPACE, "MariaDB connected successfully!");
+
+    Category.sync().then(() => {
+        logging.info(NAMESPACE, "Category table created.");
+
+        Entry.sync().then(() => {
+            logging.info(NAMESPACE, "Entry table created.")
+        });
+    });
+});
+/** Do not catch, let the server crash and burn terribly. */
 
 /** Log the request */
 router.use((req, res, next) => {
