@@ -8,7 +8,8 @@ const sql = {
     password: "economy",
     host: "localhost",
     port: 3306,
-    dialect: "mariadb"
+    dialect: "mariadb",
+    logging: false,
 };
 
 const SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || '0.0.0.0';

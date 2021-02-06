@@ -5,6 +5,7 @@ export const MariaDB = new Sequelize(
     config.sql.database, config.sql.username, config.sql.password,
     {
         host: config.sql.host,
-        dialect: 'mariadb'
+        dialect: 'mariadb',
+        logging: config.sql.logging
     }
 );
