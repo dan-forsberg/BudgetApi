@@ -21,10 +21,6 @@ const Entry = MariaDB.define('Entry', {
             model: Category,
             key: 'id'
         }
-    },
-    id: {
-        type: Sequelize.UUID,
-        primaryKey: true
     }
 });
 
