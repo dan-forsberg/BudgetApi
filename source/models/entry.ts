@@ -1,17 +1,32 @@
-import { DataTypes } from "sequelize";
-import { sequelize } from "../sql";
+import Sequelize, { DataTypes } from "sequelize";
+import { MariaDB } from "../sql";
+import { Category } from "./category";
 
-const Entry = sequelize.define('Entry', {
-    category: {
+const Entry = MariaDB.define('Entry', {
+    date: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    description: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    ID: {
-        type: DataTypes.NUMBER,
-        allowNull: false,
-        unique: true
+    amount: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    category: {
+        type: Sequelize.INTEGER,
+        references: {
+            model: Category,
+            key: 'id'
+        }
+    },
+    id: {
+        type: Sequelize.UUID,
+        primaryKey: true
     }
 });
 
 
-export default { Entry };
+export { Entry };
