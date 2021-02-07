@@ -143,4 +143,22 @@ const updateEntry = async (req: Request, res: Response): Promise<void> => {
 	}
 };
 
-export default { getAllEntries, addEntry, getSpecific, updateEntry };
+const removeEntry = async (req: Request, res: Response): Promise<void> => {
+	const entryToRemoveID = req.params.id as unknown as number;
+	try {
+		if (isNaN(entryToRemoveID)) {
+			throw new ParameterError("ID is NaN.");
+		}
+
+		const result = await Entry.destroy({ where: { id: entryToRemoveID } });
+		res.status(200).json({ message: `Removed ${result} rows.` });
+	} catch (err) {
+		if (err instanceof ParameterError) {
+			res.status(400).json({ message: err.message });
+		} else {
+			res.status(500).json({ message: "Something went wrong." });
+		}
+	}
+};
+
+export default { getAllEntries, addEntry, getSpecific, updateEntry, removeEntry };
