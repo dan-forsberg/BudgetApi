@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
 import { Op } from "sequelize";
-import { any } from "sequelize/types/lib/operators";
 import logging from "../config/logging";
 import { ParameterError } from "../interfaces/errors";
 import { Entry } from "../models/entry";
 
 const workspace = "entry-ctrl";
+const selectRelevant = ["id", "date", "description", "amount", "category"];
 
 const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 	try {
-		const result = await Entry.findAll();
+		const result = await Entry.findAll({ attributes: selectRelevant });
 		res.status(200).json(result);
 	} catch (err) {
 		logging.error(workspace, "Could not get entries.", err.message);
@@ -59,7 +59,7 @@ const constructWhereQuery = (req: Request): whereQuery => {
 
 /**
  * Get entries with specificed parameters.
- * Req.body can contain category: [], year: number, month: number, value: number
+ * Req.body can contain category: string, year: number, month: number, value: number
  * @param req 
  * @param res 
  */
@@ -67,7 +67,7 @@ const getSpecific = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const query = constructWhereQuery(req);
 		//@ts-expect-error TS doesn't like this, but it constructs a completely valid query as expected
-		const result = await Entry.findAll({ where: { ...query } });
+		const result = await Entry.findAll({ where: { ...query }, attributes: selectRelevant });
 		res.status(200).json({ result: result });
 	} catch (err) {
 		res.status(500).json({ message: "Something went wrong." });
@@ -114,4 +114,33 @@ const addEntry = async (req: Request, res: Response): Promise<void> => {
 	}
 };
 
-export default { getAllEntries, addEntry, getSpecific };
+const updateEntry = async (req: Request, res: Response): Promise<void> => {
+	/* "cast" req.params.id to number, check later that it's a number */
+	const entryToUpdateID = req.params.id as unknown as number;
+	const newEntry = req.body.entry;
+
+	try {
+		if (!newEntry) {
+			throw new ParameterError("No entry in body.");
+		} else if (isNaN(entryToUpdateID)) {
+			throw new ParameterError("ID is NaN.");
+		}
+
+		const entryRow = await Entry.findByPk(entryToUpdateID);
+		if (!entryRow) {
+			throw new ParameterError(`Could not find entry with ID ${entryToUpdateID}`);
+		}
+
+		const result = await entryRow.update(newEntry);
+		res.status(200).json({ result: result });
+	} catch (err) {
+		if (err instanceof ParameterError) {
+			res.status(400).json({ message: err.message });
+		}
+		else {
+			res.status(500).json({ message: "Something went wrong." });
+		}
+	}
+};
+
+export default { getAllEntries, addEntry, getSpecific, updateEntry };
