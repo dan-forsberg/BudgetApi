@@ -71,11 +71,11 @@ const deleteCategory = async (req: Request, res: Response): Promise<void> => {
 };
 
 const updateCategory = async (req: Request, res: Response): Promise<void> => {
-	const categoryToUpdateID = req.params.id;
+	/* "cast" req.params.id to number, check later that it's a number */
+	const categoryToUpdateID = req.params.id as unknown as number;
 	const newCategoryName = req.body.category;
 
 	try {
-		//@ts-expect-error cat..ID is assumed to be Number but is user-input
 		if (isNaN(categoryToUpdateID)) {
 			throw new ParameterError("ID is not valid.");
 		} else if (!newCategoryName) {
