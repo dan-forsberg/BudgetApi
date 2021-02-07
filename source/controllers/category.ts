@@ -57,7 +57,8 @@ const deleteCategory = async (req: Request, res: Response) => {
             }
         });
 
-        const resCode = (result > 0 ? 200 : 400);
+        /* is a category with that ID found? */
+        const resCode = (result == 0 ? 400 : 200);
         res.status(resCode).json({ rowsDeleted: result });
 
     } catch (err) {
@@ -82,13 +83,12 @@ const updateCategory = async (req: Request, res: Response) => {
         }
 
         const categoryRow = await Category.findByPk(categoryToUpdateID);
-
         if (categoryRow === null) {
             throw new ParameterError
                 (`Could not find Category with ID ${categoryToUpdateID}`);
         }
 
-        const result = await categoryRow.update({
+        await categoryRow.update({
             category: newCategoryName
         });
 
