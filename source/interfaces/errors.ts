@@ -1,11 +1,19 @@
-export class NoCategoryError extends Error {
-    constructor(message: string) {
-        super(message);
+class NoCategoryError extends Error {
+    constructor(msg: string) {
+        super(msg);
+        this.name = 'NoCategoryError';
+
+        Object.setPrototypeOf(this, NoCategoryError.prototype);
     }
 }
 
-export class ParameterError extends Error {
-    constructor(message: string) {
-        super(message);
+class ParameterError extends Error {
+    constructor(msg: string) {
+        super(msg);
+        this.name = 'ParameterError';
+
+        Object.setPrototypeOf(this, ParameterError.prototype);
     }
 }
+
+export { NoCategoryError, ParameterError };
