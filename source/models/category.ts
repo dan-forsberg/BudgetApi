@@ -7,12 +7,12 @@ interface CategoryInstance extends Model {
     id: number;
 }
 
-const Category = MariaDB.define<CategoryInstance>('Category', {
-    category: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
-    }
+const Category = MariaDB.define<CategoryInstance>("Category", {
+	category: {
+		type: DataTypes.STRING,
+		allowNull: false,
+		unique: true
+	}
 });
 
 export { Category, CategoryInstance };

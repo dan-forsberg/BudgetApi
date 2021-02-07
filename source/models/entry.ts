@@ -10,26 +10,26 @@ interface EntryInstance extends Model {
     id: number;
 }
 
-const Entry = MariaDB.define<EntryInstance>('Entry', {
-    date: {
-        type: DataTypes.DATE,
-        allowNull: false
-    },
-    description: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    amount: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
-    category: {
-        type: Sequelize.INTEGER,
-        references: {
-            model: Category,
-            key: 'id'
-        }
-    }
+const Entry = MariaDB.define<EntryInstance>("Entry", {
+	date: {
+		type: DataTypes.DATE,
+		allowNull: false
+	},
+	description: {
+		type: DataTypes.STRING,
+		allowNull: false
+	},
+	amount: {
+		type: DataTypes.INTEGER,
+		allowNull: false
+	},
+	category: {
+		type: Sequelize.INTEGER,
+		references: {
+			model: Category,
+			key: "id"
+		}
+	}
 });
 
 

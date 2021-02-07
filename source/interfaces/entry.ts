@@ -1,7 +1,9 @@
-export default interface IEntry {
-    _id?: any;
+interface IEntry {
+    _id?: number;
     date: Date;
-    description: String;
+    description: string;
     amount: number;
     category: number;
-};
+}
+
+export default IEntry;

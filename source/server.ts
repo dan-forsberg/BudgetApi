@@ -1,45 +1,45 @@
-import http from 'http';
-import express from 'express';
-import cors from 'cors';
+import http from "http";
+import express from "express";
+import cors from "cors";
 
-import logging from './config/logging';
-import config from './config/config';
-import entryRoutes from './routes/entry';
-import categoryRoutes from './routes/category';
+import logging from "./config/logging";
+import config from "./config/config";
+import entryRoutes from "./routes/entry";
+import categoryRoutes from "./routes/category";
 
 import { Entry } from "./models/entry";
 import { MariaDB } from "./sql";
-import { Category } from './models/category';
+import { Category } from "./models/category";
 
-const NAMESPACE = 'Server';
+const NAMESPACE = "Server";
 const router = express();
 
 
 /** Connect to MariaDB */
 MariaDB.authenticate().then(() => {
-    logging.info(NAMESPACE, "MariaDB connected successfully!");
+	logging.info(NAMESPACE, "MariaDB connected successfully!");
 
-    Category.sync().then(() => {
-        logging.info(NAMESPACE, "Category table created.");
+	Category.sync().then(() => {
+		logging.info(NAMESPACE, "Category table created.");
 
-        Entry.sync().then(() => {
-            logging.info(NAMESPACE, "Entry table created.")
-        });
-    });
+		Entry.sync().then(() => {
+			logging.info(NAMESPACE, "Entry table created.");
+		});
+	});
 });
 /** Do not catch, let the server crash and burn terribly. */
 
 /** Log the request */
 router.use((req, res, next) => {
-    /** Log the req */
-    logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}]`);
+	/** Log the req */
+	logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}]`);
 
-    res.on('finish', () => {
-        /** Log the res */
-        logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - STATUS: [${res.statusCode}] - IP: [${req.socket.remoteAddress}]`);
-    });
+	res.on("finish", () => {
+		/** Log the res */
+		logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - STATUS: [${res.statusCode}] - IP: [${req.socket.remoteAddress}]`);
+	});
 
-    next();
+	next();
 });
 
 router.use(cors());
@@ -51,28 +51,28 @@ router.use(express.json());
 
 /** Rules of our API */
 router.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
-    if (req.method == 'OPTIONS') {
-        res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
-        return res.status(200).json({});
-    }
+	if (req.method == "OPTIONS") {
+		res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
+		return res.status(200).json({});
+	}
 
-    next();
+	next();
 });
 
 /** Routes go here */
-router.use('/api/entry', entryRoutes);
-router.use('/api/category', categoryRoutes);
+router.use("/api/entry", entryRoutes);
+router.use("/api/category", categoryRoutes);
 
 /** Error handling */
-router.use((req, res, next) => {
-    const error = new Error('Not found');
+router.use((_, res) => {
+	const error = new Error("Not found");
 
-    res.status(404).json({
-        message: error.message
-    });
+	res.status(404).json({
+		message: error.message
+	});
 });
 
 const httpServer = http.createServer(router);

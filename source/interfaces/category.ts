@@ -1,4 +1,6 @@
-export default interface ICategory {
+interface ICategory {
     category: string;
-    _id?: any;
+    _id?: number;
 }
+
+export default ICategory;
