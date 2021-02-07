@@ -14,7 +14,7 @@ const getCategories = async (req: Request, res: Response) => {
         res.status(200).json({ categories: categories });
     } catch (ex) {
         logging.error(workspace, "Could not fetch categories", ex.message);
-        res.status(500);
+        res.status(500).json({ message: "Something went wrong." });
     }
 };
 
@@ -32,12 +32,12 @@ const newCategory = async (req: Request, res: Response) => {
             res.status(400).json(err.message);
         } else if (err instanceof ValidationError) {
             if (err.name === "SequelizeUniqueConstraintError") {
-                res.status(400).json("Category already exists.");
+                res.status(400).json({ message: "Category already exists." });
             } else {
-                res.status(400).json(err.message);
+                res.status(400).json({ message: err.message });
             }
         } else {
-            res.status(500).json("Could not save category...");
+            res.status(500).json({ message: "Could not save category..." });
             logging.error("Could not create new category.", err);
         }
     }
@@ -46,7 +46,8 @@ const newCategory = async (req: Request, res: Response) => {
 const deleteCategory = async (req: Request, res: Response) => {
     const categoryToDeleteID = req.params.id;
     try {
-        if (!categoryToDeleteID || Number.isNaN(categoryToDeleteID)) {
+        //@ts-expect-error
+        if (isNaN(categoryToDeleteID)) {
             throw new ParameterError("No ID specified or ID is NaN.");
         }
 
@@ -61,11 +62,45 @@ const deleteCategory = async (req: Request, res: Response) => {
 
     } catch (err) {
         if (err instanceof ParameterError) {
-            res.status(400).json(err.message);
+            res.status(400).json({ message: err.message });
         }
 
         res.status(500).json({ message: "Something went wrong." });
     }
 };
 
-export default { getCategories, newCategory, deleteCategory };
+const updateCategory = async (req: Request, res: Response) => {
+    const categoryToUpdateID = req.params.id;
+    const newCategoryName = req.body.category;
+
+    try {
+        //@ts-expect-error
+        if (isNaN(categoryToUpdateID)) {
+            throw new ParameterError("ID is not valid.");
+        } else if (!newCategoryName) {
+            throw new ParameterError("New category name undefined.");
+        }
+
+        const categoryRow = await Category.findByPk(categoryToUpdateID);
+
+        if (categoryRow === null) {
+            throw new ParameterError
+                (`Could not find Category with ID ${categoryToUpdateID}`);
+        }
+
+        const result = await categoryRow.update({
+            category: newCategoryName
+        });
+
+        res.status(200).json({ message: "Name updated." });
+
+    } catch (err) {
+        if (err instanceof ParameterError) {
+            res.status(400).json({ message: err.message });
+        } else {
+            res.status(500).json({ message: "Something went wrong." });
+        }
+    }
+};
+
+export default { getCategories, newCategory, deleteCategory, updateCategory };
