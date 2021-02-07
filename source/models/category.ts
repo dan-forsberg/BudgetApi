@@ -1,11 +1,18 @@
-import Sequelize, { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import { MariaDB } from "../sql";
+//import ICategory from "../interfaces/category";
 
-const Category = MariaDB.define('Category', {
+interface CategoryInstance extends Model {
+    category: string;
+    id: number;
+}
+
+const Category = MariaDB.define<CategoryInstance>('Category', {
     category: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
     }
 });
 
-export { Category };
+export { Category, CategoryInstance };

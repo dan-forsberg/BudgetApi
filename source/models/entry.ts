@@ -1,8 +1,16 @@
-import Sequelize, { DataTypes } from "sequelize";
+import Sequelize, { DataTypes, Model } from "sequelize";
 import { MariaDB } from "../sql";
 import { Category } from "./category";
 
-const Entry = MariaDB.define('Entry', {
+interface EntryInstance extends Model {
+    date: Date;
+    description: string;
+    amount: number;
+    category: number;
+    id: number;
+}
+
+const Entry = MariaDB.define<EntryInstance>('Entry', {
     date: {
         type: DataTypes.DATE,
         allowNull: false
@@ -25,4 +33,4 @@ const Entry = MariaDB.define('Entry', {
 });
 
 
-export { Entry };
+export { Entry, EntryInstance };
