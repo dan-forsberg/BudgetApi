@@ -68,7 +68,7 @@ const getSpecific = async (req: Request, res: Response): Promise<void> => {
 		const query = constructWhereQuery(req);
 		//@ts-expect-error TS doesn't like this, but it constructs a completely valid query as expected
 		const result = await Entry.findAll({ where: { ...query } });
-		console.log(result);
+		res.status(200).json({ result: result });
 	} catch (err) {
 		res.status(500).json({ message: "Something went wrong." });
 	}
@@ -100,9 +100,10 @@ const addEntry = async (req: Request, res: Response): Promise<void> => {
 					`Missing either parameters in entries[${i}]`);
 			}
 		}
-		//const result = await Entry.insertMany(entries);
-		//console.log(result);
-		res.status(201);//.json(result);
+
+		const result = await Entry.bulkCreate(entries);
+		console.log(result);
+		res.status(201).json(result);
 	} catch (err) {
 		if (err instanceof ParameterError) {
 			res.status(400).json(err.message);
