@@ -1,0 +1,69 @@
+* Routes
+
+** Category
+A /category/ sent *to* the API should look like this
+`{category: string}`
+
+A /category/ sent *from* the API
+`{category: string, ID: number}`
+
+*** GET / or GET /get
+Params:  none
+Body:	 none
+Returns: {categories: [/category/]}
+
+*** POST /new
+Params:  none
+Body: 	 {category: string}
+Returns: {category: string, id: number}
+
+*** DELETE \/delete\/:id
+Params:  ID of the /category/ to delete
+Body: 	 none
+Returns: {rowsDeleted: x}
+
+*** PATCH \/update\/:id
+Params:  ID of the /category/ to update
+Body:    {category: string}
+Returns: {message: "Name updated"}
+
+** Entry
+An /entry/ sent *to* the API should look like this
+`{date:?, description:string, amount:number, category:number}`
+
+An /entry/ sent *from* the API
+`{date: date, description: string, amount: number, category: number, ID: number}
+
+*** GET /
+Params:  none
+Body: 	 none
+Returns: ?
+
+*** GET /specific
+Params:  none
+Body:    category: string, year: number, month: number, value: number
+Returns: ?
+
+*** POST /new
+Params:  none
+Body:    Array of /entry/
+Returns: ?
+
+*** PATCH \/update\/:id
+Params:  ID of the /entry/
+Body:    A new /entry/ object
+Returns: ?
+
+*** DELETE \/delete\/:id
+Params:  ID of the /entry/
+Body:    none
+Returns: {rowsDeleted: x}
+
+
+* Todo/to implement
+- Add field to entries to show if an entry is constant, eg rent or food. 
+The idea is to make it order it first in the UI and to allow it to 
+automatically add these fields when making a new "budget".
+
+-Make getSpecific support ranges.
+Eg, get all entries from /date/ to /date/ with amount between /x/ and /y/
