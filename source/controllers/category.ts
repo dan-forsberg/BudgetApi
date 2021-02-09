@@ -9,7 +9,7 @@ const workspace = "category-ctrl";
 const getCategories = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const categories = await Category.findAll(
-			{ attributes: ["id", "category"] }
+			{ attributes: ["id", "name"] }
 		);
 		res.status(200).json({ categories: categories });
 	} catch (ex) {
@@ -21,12 +21,12 @@ const getCategories = async (req: Request, res: Response): Promise<void> => {
 const newCategory = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const reqCategory = req.body;
-		if (!reqCategory || !reqCategory.category) {
+		if (!reqCategory || !reqCategory.name) {
 			throw new NoCategoryError("No new category in body.");
 		}
 
 		const result = await Category.create(reqCategory);
-		res.status(201).json({ category: result.category, id: result.id });
+		res.status(201).json({ category: result.name, id: result.id });
 	} catch (err) {
 		if (err instanceof NoCategoryError) {
 			res.status(400).json(err.message);
@@ -44,9 +44,8 @@ const newCategory = async (req: Request, res: Response): Promise<void> => {
 };
 
 const deleteCategory = async (req: Request, res: Response): Promise<void> => {
-	const categoryToDeleteID = req.params.id;
+	const categoryToDeleteID = req.params.id as unknown as number;
 	try {
-		//@ts-expect-error cat..ID is assumed to be Number but is user-input
 		if (isNaN(categoryToDeleteID)) {
 			throw new ParameterError("No ID specified or ID is NaN.");
 		}
@@ -73,7 +72,7 @@ const deleteCategory = async (req: Request, res: Response): Promise<void> => {
 const updateCategory = async (req: Request, res: Response): Promise<void> => {
 	/* "cast" req.params.id to number, check later that it's a number */
 	const categoryToUpdateID = req.params.id as unknown as number;
-	const newCategoryName = req.body.category;
+	const newCategoryName = req.body.name;
 
 	try {
 		if (isNaN(categoryToUpdateID)) {
@@ -88,7 +87,7 @@ const updateCategory = async (req: Request, res: Response): Promise<void> => {
 		}
 
 		await categoryRow.update({
-			category: newCategoryName
+			name: newCategoryName
 		});
 
 		res.status(200).json({ message: "Name updated." });
