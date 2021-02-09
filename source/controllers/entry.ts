@@ -2,14 +2,24 @@ import { Request, Response } from "express";
 import { Op } from "sequelize";
 import logging from "../config/logging";
 import { ParameterError } from "../interfaces/errors";
+import { Category } from "../models/category";
 import { Entry } from "../models/entry";
 
 const workspace = "entry-ctrl";
-const selectRelevant = ["id", "date", "description", "amount", "category"];
+const selectRelevant = ["id", "date", "description", "amount"];
 
 const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 	try {
-		const result = await Entry.findAll({ attributes: selectRelevant });
+		const result = await Entry.findAll({
+			attributes: selectRelevant,
+			include: {
+				model: Category,
+				required: true,
+				attributes: ["name"]
+			}
+		});
+
+
 		res.status(200).json(result);
 	} catch (err) {
 		logging.error(workspace, "Could not get entries.", err.message);
@@ -66,8 +76,16 @@ const constructWhereQuery = (req: Request): whereQuery => {
 const getSpecific = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const query = constructWhereQuery(req);
-		//@ts-expect-error TS doesn't like this, but it constructs a completely valid query as expected
-		const result = await Entry.findAll({ where: { ...query }, attributes: selectRelevant });
+		const result = await Entry.findAll({
+			//@ts-expect-error TS doesn't like this, but it constructs a completely valid query as expected
+			where: { ...query },
+			attributes: selectRelevant,
+			include: {
+				model: Category,
+				required: true,
+				attributes: ["name"]
+			}
+		});
 		res.status(200).json({ result: result });
 	} catch (err) {
 		res.status(500).json({ message: "Something went wrong." });
@@ -82,7 +100,7 @@ const addEntry = async (req: Request, res: Response): Promise<void> => {
 	*   date: 2021-03-01. 2021-03-31, somewhere in between or just 2021-03
 	*   description: "Lön"
 	*   amount: 1000
-	*   category: {id of Dan}
+	*   CategoryId: {id of Dan}
 	* }, ...]
 	*/
 	try {
@@ -94,10 +112,15 @@ const addEntry = async (req: Request, res: Response): Promise<void> => {
 
 		// check that entries.date, description, amount and categories exist
 		for (let i = 0; i < entries.length; i++) {
-			const { date, description, amount, category } = entries[i];
-			if (!date || !description || !amount || !category) {
+			const { date, description, amount, CategoryId, category } = entries[i];
+			if (!date || !description || !amount || (!CategoryId && !category)) {
 				throw new ParameterError(
 					`Missing either parameters in entries[${i}]`);
+			}
+
+			/* Allow client to use category instead of CategoryId */
+			if (category && !CategoryId) {
+				entries[i].CategoryId = category;
 			}
 		}
 
@@ -124,6 +147,8 @@ const updateEntry = async (req: Request, res: Response): Promise<void> => {
 			throw new ParameterError("No entry in body.");
 		} else if (isNaN(entryToUpdateID)) {
 			throw new ParameterError("ID is NaN.");
+		} else if (!newEntry.date && !newEntry.description && !newEntry.amount && !newEntry.CategoryId) {
+			throw new ParameterError("No proper parameters in body. Expected date, description, amount or CategoryId.");
 		}
 
 		const entryRow = await Entry.findByPk(entryToUpdateID);
