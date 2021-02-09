@@ -18,13 +18,8 @@ const router = express();
 /** Connect to MariaDB */
 MariaDB.authenticate().then(() => {
 	logging.info(NAMESPACE, "MariaDB connected successfully!");
-
 	Category.sync().then(() => {
-		logging.info(NAMESPACE, "Category table created.");
-
-		Entry.sync().then(() => {
-			logging.info(NAMESPACE, "Entry table created.");
-		});
+		Entry.sync().then();
 	});
 });
 /** Do not catch, let the server crash and burn terribly. */
