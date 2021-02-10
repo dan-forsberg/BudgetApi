@@ -8,9 +8,10 @@ import entryRoutes from "./routes/entry";
 import categoryRoutes from "./routes/category";
 import defaultRoutes from "./routes/defaultEntry";
 
-import { Entry } from "./models/entry";
 import { MariaDB } from "./sql";
+import { Entry } from "./models/entry";
 import { Category } from "./models/category";
+import { DefaultEntry } from "./models/defaultEntry";
 
 const NAMESPACE = "Server";
 const router = express();
@@ -20,7 +21,8 @@ const router = express();
 MariaDB.authenticate().then(() => {
 	logging.info(NAMESPACE, "MariaDB connected successfully!");
 	Category.sync().then(() => {
-		Entry.sync().then();
+		Entry.sync();
+		DefaultEntry.sync();
 	});
 });
 /** Do not catch, let the server crash and burn terribly. */
