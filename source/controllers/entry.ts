@@ -26,14 +26,17 @@ const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 		res.status(500);
 	}
 };
-type whereQuery = { date?: unknown, category?: unknown, amount?: unknown, description?: unknown; };
+type whereQuery = { date?: unknown, CategoryID?: unknown, amount?: unknown, description?: unknown; };
 const constructWhereQuery = (req: Request): whereQuery => {
-	const body = req.body;
+	const query = req.query;
 
 	const result: whereQuery = {};
 
 	// Date
-	if (body.year && !isNaN(body.year)) {
+	const year = query.year as unknown as number;
+	const month = query.month as unknown as number;
+
+	if (query.year && !isNaN(year)) {
 		/* Do some NodeJS Date magic
 		   new Date("2021") => 2021-01-01
 		   new Date(2021, 12) => 2021-12-31
@@ -41,28 +44,30 @@ const constructWhereQuery = (req: Request): whereQuery => {
 		   new Date("2021-03") => 2021-03-01
 		   new Date(2021, 3) => 2021-03-30
 		*/
-		let start = new Date(`${body.year}`);
-		let end = new Date(body.year, 12);
+		let start = new Date(`${query.year}`);
+		let end = new Date(year, 12);
 
-		if (body.month && !isNaN(body.month)) {
-			start = new Date(`${body.year}-${body.month}`);
-			end = new Date(body.year, body.month);
+		if (query.month && !isNaN(month)) {
+			start = new Date(`${query.year}-${query.month}`);
+			end = new Date(year, month);
 		}
 
 		result.date = { [Op.between]: [start, end] };
 	}
 
-	if (body.category) {
-		result.category = body.category;
+	if (query.category) {
+		result.CategoryID = query.category;
 	}
 
-	if (body.amount) {
-		result.amount = body.amount;
+	if (query.amount) {
+		result.amount = query.amount;
 	}
 
-	if (body.description) {
-		result.description = body.description;
+	if (query.description) {
+		result.description = query.description;
 	}
+
+	console.log(result);
 
 	return result;
 };
@@ -88,6 +93,7 @@ const getSpecific = async (req: Request, res: Response): Promise<void> => {
 		});
 		res.status(200).json({ result: result });
 	} catch (err) {
+		logging.error(workspace, "Could not get specific.", err);
 		res.status(500).json({ message: "Something went wrong." });
 	}
 };
@@ -139,7 +145,7 @@ const addEntry = async (req: Request, res: Response): Promise<void> => {
 
 const updateEntry = async (req: Request, res: Response): Promise<void> => {
 	/* "cast" req.params.id to number, check later that it's a number */
-	const entryToUpdateID = req.params.id as unknown as number;
+	const entryToUpdateID = req.body.id as unknown as number;
 	const newEntry = req.body.entry;
 
 	try {
