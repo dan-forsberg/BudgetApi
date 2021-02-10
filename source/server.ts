@@ -6,6 +6,7 @@ import logging from "./config/logging";
 import config from "./config/config";
 import entryRoutes from "./routes/entry";
 import categoryRoutes from "./routes/category";
+import defaultRoutes from "./routes/defaultEntry";
 
 import { Entry } from "./models/entry";
 import { MariaDB } from "./sql";
@@ -60,6 +61,7 @@ router.use((req, res, next) => {
 /** Routes go here */
 router.use("/api/entry", entryRoutes);
 router.use("/api/category", categoryRoutes);
+router.use("/api/default", defaultRoutes);
 
 /** Error handling */
 router.use((_, res) => {
