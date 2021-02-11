@@ -18,10 +18,18 @@ const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 				required: true,
 				attributes: ["name"]
 			}
+		}) as any[]; // Typescript is being really annoying
+
+		const categories: string[] = [];
+		result.forEach(entry => {
+			console.log(entry);
+			if (categories.indexOf(entry.Category.name) == -1) {
+				categories.push(entry.Category.name);
+			}
 		});
 
 
-		res.status(200).json(result);
+		res.status(200).json({ categories: categories, result: result });
 	} catch (err) {
 		logging.error(workspace, "Could not get entries.", err.message);
 		res.status(500);
@@ -91,24 +99,17 @@ const getSpecific = async (req: Request, res: Response): Promise<void> => {
 				required: true,
 				attributes: ["name"]
 			}
-		});
+		}) as any[]; // Typescript is being really annoying
 
-		const categorySeperated: { entries: IEntry[]; }[] = [];
-
-		result.forEach(row => {
-			//@ts-expect-error this works
-			const categoryName = row.Category.name;
-			if (categorySeperated[categoryName] === undefined) {
-				categorySeperated[categoryName] = { "entries": [row] };
-			} else {
-				categorySeperated[categoryName].entries.push(row);
+		const categories: string[] = [];
+		result.forEach(entry => {
+			console.log(entry);
+			if (categories.indexOf(entry.Category.name) == -1) {
+				categories.push(entry.Category.name);
 			}
 		});
 
-		console.clear();
-		console.log(categorySeperated);
-		// sends []??????
-		res.status(200).json(categorySeperated);
+		res.status(200).json({ categories: categories, result: result });
 	} catch (err) {
 		logging.error(workspace, "Could not get specific.", err);
 		res.status(500).json({ message: "Something went wrong." });
