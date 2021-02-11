@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Op } from "sequelize";
 import logging from "../config/logging";
+import IEntry from "../interfaces/entry";
 import { ParameterError } from "../interfaces/errors";
 import { Category } from "../models/category";
 import { Entry } from "../models/entry";
@@ -91,7 +92,23 @@ const getSpecific = async (req: Request, res: Response): Promise<void> => {
 				attributes: ["name"]
 			}
 		});
-		res.status(200).json({ result: result });
+
+		const categorySeperated: { entries: IEntry[]; }[] = [];
+
+		result.forEach(row => {
+			//@ts-expect-error this works
+			const categoryName = row.Category.name;
+			if (categorySeperated[categoryName] === undefined) {
+				categorySeperated[categoryName] = { "entries": [row] };
+			} else {
+				categorySeperated[categoryName].entries.push(row);
+			}
+		});
+
+		console.clear();
+		console.log(categorySeperated);
+		// sends []??????
+		res.status(200).json(categorySeperated);
 	} catch (err) {
 		logging.error(workspace, "Could not get specific.", err);
 		res.status(500).json({ message: "Something went wrong." });
