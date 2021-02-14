@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { Op } from "sequelize";
 import logging from "../config/logging";
-import IEntry from "../interfaces/entry";
 import { ParameterError } from "../interfaces/errors";
 import { Category } from "../models/category";
 import { Entry } from "../models/entry";
@@ -75,8 +74,6 @@ const constructWhereQuery = (req: Request): whereQuery => {
 	if (query.description) {
 		result.description = query.description;
 	}
-
-	console.log(result);
 
 	return result;
 };
