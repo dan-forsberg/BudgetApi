@@ -100,7 +100,6 @@ const getSpecific = async (req: Request, res: Response): Promise<void> => {
 
 		const categories: string[] = [];
 		result.forEach(entry => {
-			console.log(entry);
 			if (categories.indexOf(entry.Category.name) == -1) {
 				categories.push(entry.Category.name);
 			}
