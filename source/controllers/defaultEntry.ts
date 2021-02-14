@@ -16,10 +16,17 @@ const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 				required: true,
 				attributes: ["name"]
 			}
+		}) as any[];
+
+		const categories: string[] = [];
+		result.forEach(entry => {
+			console.log(entry);
+			if (categories.indexOf(entry.Category.name) == -1) {
+				categories.push(entry.Category.name);
+			}
 		});
 
-
-		res.status(200).json(result);
+		res.status(200).json({ categories: categories, result: result });
 	} catch (err) {
 		logging.error(workspace, "Could not get entries.", err.message);
 		res.status(500);
