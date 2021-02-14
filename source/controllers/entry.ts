@@ -132,26 +132,26 @@ const addEntry = async (req: Request, res: Response): Promise<void> => {
 
 		// check that entries.date, description, amount and categories exist
 		for (let i = 0; i < entries.length; i++) {
-			const { date, description, amount, CategoryId, category } = entries[i];
-			if (!date || !description || !amount || (!CategoryId && !category)) {
+			const { date, description, amount, CategoryId, Category } = entries[i];
+			if (!date || !description || !amount || (!CategoryId && !Category.id)) {
 				throw new ParameterError(
 					`Missing either parameters in entries[${i}]`);
 			}
 
 			/* Allow client to use category instead of CategoryId */
-			if (category && !CategoryId) {
-				entries[i].CategoryId = category;
+			if (Category.id && !CategoryId) {
+				entries[i].CategoryId = Category.id;
 			}
 		}
 
 		const result = await Entry.bulkCreate(entries);
-		console.log(result);
 		res.status(201).json(result);
 	} catch (err) {
 		if (err instanceof ParameterError) {
+			console.log(err.message);
 			res.status(400).json(err.message);
 		} else {
-			logging.error(workspace, "Could not add entry.", err.message);
+			logging.error(workspace, "Could not add entry.", err);
 			res.status(500);
 		}
 	}
