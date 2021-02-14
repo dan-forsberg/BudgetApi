@@ -5,7 +5,7 @@ import { Category } from "../models/category";
 import { DefaultEntry } from "../models/defaultEntry";
 
 const workspace = "default-entry-ctrl";
-const selectRelevant = ["id", "description", "amount"];
+const selectRelevant = ["description", "amount"];
 
 const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 	try {
@@ -14,18 +14,20 @@ const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 			include: {
 				model: Category,
 				required: true,
-				attributes: ["name"]
+				attributes: ["name", "id"]
 			}
 		}) as any[];
 
 		const categories: string[] = [];
 		result.forEach(entry => {
-			console.log(entry);
+			// inject todays date into the date
+			entry.dataValues.date = new Date();
+
+			// and save the categories into categories
 			if (categories.indexOf(entry.Category.name) == -1) {
 				categories.push(entry.Category.name);
 			}
 		});
-
 		res.status(200).json({ categories: categories, result: result });
 	} catch (err) {
 		logging.error(workspace, "Could not get entries.", err.message);
