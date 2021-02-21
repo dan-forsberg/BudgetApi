@@ -70,7 +70,6 @@ var getAllEntries = function (_, res) { return __awaiter(void 0, void 0, void 0,
                         categories_1.push(entry.Category.name);
                     }
                 });
-                logging_1.default.info(workspace, "Getting default entries", result);
                 res.status(200).json({ categories: categories_1, result: result });
                 return [3 /*break*/, 3];
             case 2:

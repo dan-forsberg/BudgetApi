@@ -80,7 +80,6 @@ var getAllEntries = function (_, res) { return __awaiter(void 0, void 0, void 0,
                         categories_1.push(entry.Category.name);
                     }
                 });
-                logging_1.default.info(workspace, "Getting all entries.", result);
                 res.status(200).json({ categories: categories_1, result: result });
                 return [3 /*break*/, 3];
             case 2:
@@ -137,10 +136,7 @@ var getSpecific = function (req, res) { return __awaiter(void 0, void 0, void 0,
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                logging_1.default.info(workspace, "Got request to specific.");
-                _a.label = 1;
-            case 1:
-                _a.trys.push([1, 3, , 4]);
+                _a.trys.push([0, 2, , 3]);
                 query = constructWhereQuery(req);
                 return [4 /*yield*/, entry_1.Entry.findAll({
                         //@ts-expect-error TS doesn't like this, but it constructs a completely valid query as expected
@@ -152,7 +148,7 @@ var getSpecific = function (req, res) { return __awaiter(void 0, void 0, void 0,
                             attributes: ["name"]
                         }
                     })];
-            case 2:
+            case 1:
                 result = _a.sent();
                 categories_2 = [];
                 result.forEach(function (entry) {
@@ -160,16 +156,14 @@ var getSpecific = function (req, res) { return __awaiter(void 0, void 0, void 0,
                         categories_2.push(entry.Category.name);
                     }
                 });
-                logging_1.default.info(workspace, "Getting specific entries.", result);
-                logging_1.default.info(workspace, "query: ", query);
                 res.status(200).json({ categories: categories_2, result: result });
-                return [3 /*break*/, 4];
-            case 3:
+                return [3 /*break*/, 3];
+            case 2:
                 err_2 = _a.sent();
                 logging_1.default.error(workspace, "Could not get specific.", err_2);
                 res.status(500).json({ message: "Something went wrong." });
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
         }
     });
 }); };
