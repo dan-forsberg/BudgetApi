@@ -1,11 +1,7 @@
-import dotenv from "dotenv";
-
-dotenv.config();
-
 const sql = {
 	database: "economy",
-	username: "economy",
-	password: "economy",
+	username: process.env.dbUser || "economy",
+	password: process.env.dbPassword || "economy",
 	host: "localhost",
 	port: 3306,
 	dialect: "mariadb",

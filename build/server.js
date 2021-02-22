@@ -19,9 +19,10 @@ var category_2 = require("./models/category");
 var defaultEntry_2 = require("./models/defaultEntry");
 var NAMESPACE = "Server";
 var router = express_1.default();
-var privateKey = fs_1.default.readFileSync("/etc/letsencrypt/live/dasifor.xyz/privkey.pem", "utf8");
-var certificate = fs_1.default.readFileSync("/etc/letsencrypt/live/dasifor.xyz//cert.pem", "utf8");
-var ca = fs_1.default.readFileSync("/etc/letsencrypt/live/dasifor.xyz//chain.pem", "utf8");
+var letsEncrypt = process.env.letsEncrypt;
+var privateKey = fs_1.default.readFileSync(letsEncrypt + "/privkey.pem", "utf8");
+var certificate = fs_1.default.readFileSync(letsEncrypt + "//cert.pem", "utf8");
+var ca = fs_1.default.readFileSync(letsEncrypt + "//chain.pem", "utf8");
 var credentials = {
     key: privateKey,
     cert: certificate,
@@ -30,10 +31,10 @@ var credentials = {
 var authConfig = {
     authRequired: false,
     auth0Logout: true,
-    secret: "a long, randomly-generated string stored in env",
-    baseURL: "https://dasifor.xyz",
-    clientID: "5qQ5xvpUl4gecTkaP95O1HpKhGoJMUD0",
-    issuerBaseURL: "https://dev-dasifor.eu.auth0.com"
+    secret: process.env.secret,
+    baseURL: process.env.baseURL,
+    clientID: process.env.clientID,
+    issuerBaseURL: process.env.issuerBaseURL
 };
 /** Connect to MariaDB */
 sql_1.MariaDB.authenticate().then(function () {

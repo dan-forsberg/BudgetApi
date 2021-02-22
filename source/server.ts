@@ -18,9 +18,10 @@ import { DefaultEntry } from "./models/defaultEntry";
 const NAMESPACE = "Server";
 const router = express();
 
-const privateKey = fs.readFileSync("/etc/letsencrypt/live/dasifor.xyz/privkey.pem", "utf8");
-const certificate = fs.readFileSync("/etc/letsencrypt/live/dasifor.xyz//cert.pem", "utf8");
-const ca = fs.readFileSync("/etc/letsencrypt/live/dasifor.xyz//chain.pem", "utf8");
+const letsEncrypt = process.env.letsEncrypt;
+const privateKey = fs.readFileSync(`${letsEncrypt}/privkey.pem`, "utf8");
+const certificate = fs.readFileSync(`${letsEncrypt}//cert.pem`, "utf8");
+const ca = fs.readFileSync(`${letsEncrypt}//chain.pem`, "utf8");
 
 const credentials = {
 	key: privateKey,
@@ -31,10 +32,10 @@ const credentials = {
 const authConfig = {
 	authRequired: false,
 	auth0Logout: true,
-	secret: "a long, randomly-generated string stored in env",
-	baseURL: "https://dasifor.xyz",
-	clientID: "5qQ5xvpUl4gecTkaP95O1HpKhGoJMUD0",
-	issuerBaseURL: "https://dev-dasifor.eu.auth0.com"
+	secret: process.env.secret,
+	baseURL: process.env.baseURL,
+	clientID: process.env.clientID,
+	issuerBaseURL: process.env.issuerBaseURL
 };
 
 

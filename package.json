@@ -5,7 +5,8 @@
 	"main": "source/server.ts",
 	"scripts": {
 		"build": "rm -rf build && tsc",
-		"dev": "ts-node-dev source/server.ts"
+		"dev": "ts-node-dev source/server.ts",
+		"start": "node -r dotenv/config build/server.js"
 	},
 	"author": "",
 	"license": "ISC",
