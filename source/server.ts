@@ -2,7 +2,7 @@ import https from "https";
 import express from "express";
 import cors from "cors";
 import fs from "fs";
-import { auth } from "express-openid-connect";
+import { auth, requiresAuth } from "express-openid-connect";
 
 import logging from "./config/logging";
 import config from "./config/config";
@@ -86,16 +86,12 @@ router.use("/api", (req, res, next) => {
 });
 
 /** Routes go here */
-router.use("/api/entry", entryRoutes);
-router.use("/api/category", categoryRoutes);
-router.use("/api/default", defaultRoutes);
+router.use("/api/entry", requiresAuth(), entryRoutes);
+router.use("/api/category", requiresAuth(), categoryRoutes);
+router.use("/api/default", requiresAuth(), defaultRoutes);
 
 /** Static files */
 router.use("/", express.static("www"));
-router.get("/", (req, res) => {
-	//@ts-expect-error this works
-	res.send(req.oidc.isAuthenticated() ? "Logged in" : "Logged out");
-});
 
 
 /** Error handling */
