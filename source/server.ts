@@ -86,7 +86,9 @@ router.use((_, res) => {
 	});
 });
 
-//const httpServer = http.createServer(router);
+/** Static files */
+router.use("/", express.static("www"));
+
 const httpsServer = https.createServer(credentials, router);
 
 httpsServer.listen(config.server.port, () => logging.info(NAMESPACE, `Server is running https://${config.server.hostname}:${config.server.port}`));
