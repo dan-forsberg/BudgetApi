@@ -87,7 +87,7 @@ router.use((_, res) => {
 });
 
 /** Static files */
-router.use("/", express.static("www"));
+router.use(express.static("www"));
 
 const httpsServer = https.createServer(credentials, router);
 
