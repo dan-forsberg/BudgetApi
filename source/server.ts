@@ -1,6 +1,8 @@
 import http from "http";
+import https from "https";
 import express from "express";
 import cors from "cors";
+import fs from "fs";
 
 import logging from "./config/logging";
 import config from "./config/config";
@@ -15,6 +17,16 @@ import { DefaultEntry } from "./models/defaultEntry";
 
 const NAMESPACE = "Server";
 const router = express();
+
+const privateKey = fs.readFileSync("/etc/letsencrypt/live/dasifor.xyz/privkey.pem", "utf8");
+const certificate = fs.readFileSync("/etc/letsencrypt/live/dasifor.xyz//cert.pem", "utf8");
+const ca = fs.readFileSync("/etc/letsencrypt/live/dasifor.xyz//chain.pem", "utf8");
+
+const credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca: ca
+};
 
 
 /** Connect to MariaDB */
@@ -74,5 +86,7 @@ router.use((_, res) => {
 	});
 });
 
-const httpServer = http.createServer(router);
-httpServer.listen(config.server.port, () => logging.info(NAMESPACE, `Server is running http://${config.server.hostname}:${config.server.port}`));
+//const httpServer = http.createServer(router);
+const httpsServer = https.createServer(credentials, router);
+
+httpsServer.listen(config.server.port, () => logging.info(NAMESPACE, `Server is running https://${config.server.hostname}:${config.server.port}`));
