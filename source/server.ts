@@ -1,8 +1,8 @@
-import http from "http";
 import https from "https";
 import express from "express";
 import cors from "cors";
 import fs from "fs";
+import { auth } from "express-openid-connect";
 
 import logging from "./config/logging";
 import config from "./config/config";
@@ -28,6 +28,15 @@ const credentials = {
 	ca: ca
 };
 
+const authConfig = {
+	authRequired: false,
+	auth0Logout: true,
+	secret: "a long, randomly-generated string stored in env",
+	baseURL: "https://dasifor.xyz",
+	clientID: "5qQ5xvpUl4gecTkaP95O1HpKhGoJMUD0",
+	issuerBaseURL: "https://dev-dasifor.eu.auth0.com"
+};
+
 
 /** Connect to MariaDB */
 MariaDB.authenticate().then(() => {
@@ -38,6 +47,10 @@ MariaDB.authenticate().then(() => {
 	});
 });
 /** Do not catch, let the server crash and burn terribly. */
+
+/** Authentication */
+router.use(auth(authConfig));
+
 
 /** Log the request */
 router.use((req, res, next) => {
@@ -79,6 +92,10 @@ router.use("/api/default", defaultRoutes);
 
 /** Static files */
 router.use("/", express.static("www"));
+router.get("/", (req, res) => {
+	//@ts-expect-error this works
+	res.send(req.oidc.isAuthenticated() ? "Logged in" : "Logged out");
+});
 
 
 /** Error handling */

@@ -13,6 +13,7 @@
 		"cors": "^2.8.5",
 		"dotenv": "^8.2.0",
 		"express": "^4.17.1",
+		"express-openid-connect": "^2.2.1",
 		"https": "^1.0.0",
 		"mariadb": "^2.5.2",
 		"sequelize": "^6.5.0"

@@ -7,6 +7,7 @@ var https_1 = __importDefault(require("https"));
 var express_1 = __importDefault(require("express"));
 var cors_1 = __importDefault(require("cors"));
 var fs_1 = __importDefault(require("fs"));
+var express_openid_connect_1 = require("express-openid-connect");
 var logging_1 = __importDefault(require("./config/logging"));
 var config_1 = __importDefault(require("./config/config"));
 var entry_1 = __importDefault(require("./routes/entry"));
@@ -26,6 +27,14 @@ var credentials = {
     cert: certificate,
     ca: ca
 };
+var authConfig = {
+    authRequired: false,
+    auth0Logout: true,
+    secret: "a long, randomly-generated string stored in env",
+    baseURL: "https://dasifor.xyz",
+    clientID: "5qQ5xvpUl4gecTkaP95O1HpKhGoJMUD0",
+    issuerBaseURL: "https://dev-dasifor.eu.auth0.com"
+};
 /** Connect to MariaDB */
 sql_1.MariaDB.authenticate().then(function () {
     logging_1.default.info(NAMESPACE, "MariaDB connected successfully!");
@@ -35,6 +44,8 @@ sql_1.MariaDB.authenticate().then(function () {
     });
 });
 /** Do not catch, let the server crash and burn terribly. */
+/** Authentication */
+router.use(express_openid_connect_1.auth(authConfig));
 /** Log the request */
 router.use(function (req, res, next) {
     /** Log the req */
@@ -65,6 +76,10 @@ router.use("/api/category", category_1.default);
 router.use("/api/default", defaultEntry_1.default);
 /** Static files */
 router.use("/", express_1.default.static("www"));
+router.get("/", function (req, res) {
+    //@ts-expect-error this works
+    res.send(req.oidc.isAuthenticated() ? "Logged in" : "Logged out");
+});
 /** Error handling */
 router.use("*", function (_, res) {
     var error = new Error("Not found");
