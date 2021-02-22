@@ -70,6 +70,7 @@ router.use(function (_, res) {
         message: error.message
     });
 });
-//const httpServer = http.createServer(router);
+/** Static files */
+router.use("/", express_1.default.static("www"));
 var httpsServer = https_1.default.createServer(credentials, router);
 httpsServer.listen(config_1.default.server.port, function () { return logging_1.default.info(NAMESPACE, "Server is running https://" + config_1.default.server.hostname + ":" + config_1.default.server.port); });
