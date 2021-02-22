@@ -50,7 +50,7 @@ router.use(cors_1.default());
 router.use(express_1.default.urlencoded({ extended: true }));
 router.use(express_1.default.json());
 /** Rules of our API */
-router.use(function (req, res, next) {
+router.use("/api", function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     if (req.method == "OPTIONS") {
@@ -63,14 +63,14 @@ router.use(function (req, res, next) {
 router.use("/api/entry", entry_1.default);
 router.use("/api/category", category_1.default);
 router.use("/api/default", defaultEntry_1.default);
+/** Static files */
+router.use("/", express_1.default.static("www"));
 /** Error handling */
-router.use(function (_, res) {
+router.use("*", function (_, res) {
     var error = new Error("Not found");
     res.status(404).json({
         message: error.message
     });
 });
-/** Static files */
-router.use(express_1.default.static("www"));
 var httpsServer = https_1.default.createServer(credentials, router);
 httpsServer.listen(config_1.default.server.port, function () { return logging_1.default.info(NAMESPACE, "Server is running https://" + config_1.default.server.hostname + ":" + config_1.default.server.port); });

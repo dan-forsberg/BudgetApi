@@ -60,7 +60,7 @@ router.use(express.urlencoded({ extended: true }));
 router.use(express.json());
 
 /** Rules of our API */
-router.use((req, res, next) => {
+router.use("/api", (req, res, next) => {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
@@ -77,17 +77,18 @@ router.use("/api/entry", entryRoutes);
 router.use("/api/category", categoryRoutes);
 router.use("/api/default", defaultRoutes);
 
+/** Static files */
+router.use("/", express.static("www"));
+
+
 /** Error handling */
-router.use((_, res) => {
+router.use("*", (_, res) => {
 	const error = new Error("Not found");
 
 	res.status(404).json({
 		message: error.message
 	});
 });
-
-/** Static files */
-router.use(express.static("www"));
 
 const httpsServer = https.createServer(credentials, router);
 
