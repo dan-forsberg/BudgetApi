@@ -1,0 +1,13 @@
+version: "2"
+services:
+  node:
+    image: "node:15"
+    user: "node"
+    working_dir: /home/node/Budget
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./:/home/node/BudgetAPI
+    expose:
+      - "8080"
+    command: "yarn start"
