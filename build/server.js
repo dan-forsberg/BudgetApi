@@ -3,9 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var http_1 = __importDefault(require("http"));
+var https_1 = __importDefault(require("https"));
 var express_1 = __importDefault(require("express"));
 var cors_1 = __importDefault(require("cors"));
+var fs_1 = __importDefault(require("fs"));
 var logging_1 = __importDefault(require("./config/logging"));
 var config_1 = __importDefault(require("./config/config"));
 var entry_1 = __importDefault(require("./routes/entry"));
@@ -17,6 +18,14 @@ var category_2 = require("./models/category");
 var defaultEntry_2 = require("./models/defaultEntry");
 var NAMESPACE = "Server";
 var router = express_1.default();
+var privateKey = fs_1.default.readFileSync("/etc/letsencrypt/live/dasifor.xyz/privkey.pem", "utf8");
+var certificate = fs_1.default.readFileSync("/etc/letsencrypt/live/dasifor.xyz//cert.pem", "utf8");
+var ca = fs_1.default.readFileSync("/etc/letsencrypt/live/dasifor.xyz//chain.pem", "utf8");
+var credentials = {
+    key: privateKey,
+    cert: certificate,
+    ca: ca
+};
 /** Connect to MariaDB */
 sql_1.MariaDB.authenticate().then(function () {
     logging_1.default.info(NAMESPACE, "MariaDB connected successfully!");
@@ -61,5 +70,6 @@ router.use(function (_, res) {
         message: error.message
     });
 });
-var httpServer = http_1.default.createServer(router);
-httpServer.listen(config_1.default.server.port, function () { return logging_1.default.info(NAMESPACE, "Server is running http://" + config_1.default.server.hostname + ":" + config_1.default.server.port); });
+//const httpServer = http.createServer(router);
+var httpsServer = https_1.default.createServer(credentials, router);
+httpsServer.listen(config_1.default.server.port, function () { return logging_1.default.info(NAMESPACE, "Server is running https://" + config_1.default.server.hostname + ":" + config_1.default.server.port); });
