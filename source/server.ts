@@ -91,8 +91,7 @@ router.use("/api/category", requiresAuth(), categoryRoutes);
 router.use("/api/default", requiresAuth(), defaultRoutes);
 
 /** Static files */
-router.use("/", requiresAuth(), express.static("www"));
-
+router.use("/", requiresAuth(), express.static("build/www"));
 
 /** Error handling */
 router.use("*", (_, res) => {
