@@ -75,7 +75,7 @@ router.use("/api/entry", express_openid_connect_1.requiresAuth(), entry_1.defaul
 router.use("/api/category", express_openid_connect_1.requiresAuth(), category_1.default);
 router.use("/api/default", express_openid_connect_1.requiresAuth(), defaultEntry_1.default);
 /** Static files */
-router.use("/", express_1.default.static("www"));
+router.use("/", express_openid_connect_1.requiresAuth(), express_1.default.static("www"));
 /** Error handling */
 router.use("*", function (_, res) {
     var error = new Error("Not found");
