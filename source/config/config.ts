@@ -9,11 +9,13 @@ const sql = {
 };
 
 const SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || "0.0.0.0";
-const SERVER_PORT = process.env.SERVER_PORT || 8080;
+const SERVER_HTTPS_PORT = process.env.SERVER_HTTPS_PORT || 4433;
+const SERVER_HTTP_PORT = process.env.SERVER_HTTP_PORT || 8080;
 
 const SERVER = {
 	hostname: SERVER_HOSTNAME,
-	port: SERVER_PORT
+	httpsPort: SERVER_HTTPS_PORT,
+	httpPort: SERVER_HTTP_PORT
 };
 
 const config = {
