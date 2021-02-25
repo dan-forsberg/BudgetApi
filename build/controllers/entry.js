@@ -99,18 +99,12 @@ var constructWhereQuery = function (req) {
     var year = query.year;
     var month = query.month;
     if (query.year && !isNaN(year)) {
-        /* Do some NodeJS Date magic
-           new Date("2021") => 2021-01-01
-           new Date(2021, 12) => 2021-12-31
-
-           new Date("2021-03") => 2021-03-01
-           new Date(2021, 3) => 2021-03-30
-        */
         var start = new Date("" + query.year);
         var end = new Date(year, 12);
-        if (query.month && !isNaN(month)) {
-            start = new Date(query.year + "-" + query.month);
-            end = new Date(year, month);
+        if (query.month && !isNaN(month) && month <= 12) {
+            var date = new Date(query.year + "-" + query.month);
+            start = new Date(date.getFullYear(), date.getMonth(), 1);
+            end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
         }
         result.date = (_a = {}, _a[sequelize_1.Op.between] = [start, end], _a);
     }

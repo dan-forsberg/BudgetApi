@@ -45,19 +45,13 @@ const constructWhereQuery = (req: Request): whereQuery => {
 	const month = query.month as unknown as number;
 
 	if (query.year && !isNaN(year)) {
-		/* Do some NodeJS Date magic
-		   new Date("2021") => 2021-01-01
-		   new Date(2021, 12) => 2021-12-31
-
-		   new Date("2021-03") => 2021-03-01
-		   new Date(2021, 3) => 2021-03-30
-		*/
 		let start = new Date(`${query.year}`);
 		let end = new Date(year, 12);
 
-		if (query.month && !isNaN(month)) {
-			start = new Date(`${query.year}-${query.month}`);
-			end = new Date(year, month);
+		if (query.month && !isNaN(month) && month <= 12) {
+			const date = new Date(`${query.year}-${query.month}`);
+			start = new Date(date.getFullYear(), date.getMonth(), 1);
+			end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 		}
 
 		result.date = { [Op.between]: [start, end] };
