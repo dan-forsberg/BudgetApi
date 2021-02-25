@@ -159,7 +159,7 @@ const addEntry = async (req: Request, res: Response): Promise<void> => {
 
 const updateEntry = async (req: Request, res: Response): Promise<void> => {
 	/* "cast" req.params.id to number, check later that it's a number */
-	const entryToUpdateID = req.body.id as unknown as number;
+	const entryToUpdateID = req.params.id as unknown as number;
 	const newEntry = req.body.entry;
 
 	try {
