@@ -7,7 +7,8 @@ var sql = {
     host: "localhost",
     port: 3306,
     dialect: "mariadb",
-    logging: false,
+    // if dbLogging is set, logg, otherwise don't log any queries 
+    logging: process.env.dbLogging !== undefined,
 };
 var SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || "0.0.0.0";
 var SERVER_HTTPS_PORT = process.env.SERVER_HTTPS_PORT || 4433;

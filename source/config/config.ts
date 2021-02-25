@@ -5,7 +5,8 @@ const sql = {
 	host: "localhost",
 	port: 3306,
 	dialect: "mariadb",
-	logging: false,
+	// if dbLogging is set, logg, otherwise don't log any queries 
+	logging: process.env.dbLogging !== undefined,
 };
 
 const SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || "0.0.0.0";
