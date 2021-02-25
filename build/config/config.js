@@ -10,10 +10,12 @@ var sql = {
     logging: false,
 };
 var SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || "0.0.0.0";
-var SERVER_PORT = process.env.SERVER_PORT || 8080;
+var SERVER_HTTPS_PORT = process.env.SERVER_HTTPS_PORT || 4433;
+var SERVER_HTTP_PORT = process.env.SERVER_HTTP_PORT || 8080;
 var SERVER = {
     hostname: SERVER_HOSTNAME,
-    port: SERVER_PORT
+    httpsPort: SERVER_HTTPS_PORT,
+    httpPort: SERVER_HTTP_PORT
 };
 var config = {
     sql: sql,

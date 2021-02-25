@@ -182,7 +182,7 @@ var addEntry = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
                 for (i = 0; i < entries.length; i++) {
                     _a = entries[i], date = _a.date, description = _a.description, amount = _a.amount, CategoryId = _a.CategoryId, Category_1 = _a.Category;
                     if (!date || !description || !amount || (!CategoryId && !Category_1.id)) {
-                        throw new errors_1.ParameterError("Missing either parameters in entries[" + i + "]");
+                        throw new errors_1.ParameterError("Missing either parameters in entries[" + i + "].\n Entry: " + entries[i]);
                     }
                     /* Allow client to use category instead of CategoryId */
                     if (Category_1.id && !CategoryId) {
@@ -214,7 +214,7 @@ var updateEntry = function (req, res) { return __awaiter(void 0, void 0, void 0,
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                entryToUpdateID = req.body.id;
+                entryToUpdateID = req.params.id;
                 newEntry = req.body.entry;
                 _a.label = 1;
             case 1:
