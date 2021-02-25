@@ -79,6 +79,15 @@ router.use("/api", function (req, res, next) {
     next();
 });
 if (production) {
+    router.use(function (req, res, next) {
+        if (req.secure) {
+            // request was via https, so do no special handling
+            next();
+        }
+        else {
+            res.redirect("https://" + req.headers.host + req.url);
+        }
+    });
     /** Routes go here */
     router.use("/api/entry", express_openid_connect_1.requiresAuth(), entry_1.default);
     router.use("/api/category", express_openid_connect_1.requiresAuth(), category_1.default);

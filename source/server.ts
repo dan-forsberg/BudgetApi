@@ -92,6 +92,15 @@ router.use("/api", (req, res, next) => {
 });
 
 if (production) {
+
+	router.use((req, res, next) => {
+		if (req.secure) {
+			// request was via https, so do no special handling
+			next();
+		} else {
+			res.redirect("https://" + req.headers.host + req.url);
+		}
+	});
 	/** Routes go here */
 	router.use("/api/entry", requiresAuth(), entryRoutes);
 	router.use("/api/category", requiresAuth(), categoryRoutes);
