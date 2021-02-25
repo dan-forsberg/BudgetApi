@@ -85,12 +85,16 @@ if (production) {
     router.use("/api/default", express_openid_connect_1.requiresAuth(), defaultEntry_1.default);
     /** Static files */
     router.use("/", express_openid_connect_1.requiresAuth(), express_1.default.static("build/www"));
+    router.use("/edit", express_openid_connect_1.requiresAuth(), express_1.default.static("build/www"));
+    router.use("/new", express_openid_connect_1.requiresAuth(), express_1.default.static("build/www"));
 }
 else {
     router.use("/api/entry", entry_1.default);
     router.use("/api/category", category_1.default);
     router.use("/api/default", defaultEntry_1.default);
     router.use("/", express_1.default.static("build/www"));
+    router.use("/edit", express_1.default.static("build/www"));
+    router.use("/new", express_1.default.static("build/www"));
 }
 /** Error handling */
 router.use("*", function (_, res) {

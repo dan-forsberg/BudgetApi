@@ -99,11 +99,15 @@ if (production) {
 
 	/** Static files */
 	router.use("/", requiresAuth(), express.static("build/www"));
+	router.use("/edit", requiresAuth(), express.static("build/www"));
+	router.use("/new", requiresAuth(), express.static("build/www"));
 } else {
 	router.use("/api/entry", entryRoutes);
 	router.use("/api/category", categoryRoutes);
 	router.use("/api/default", defaultRoutes);
 	router.use("/", express.static("build/www"));
+	router.use("/edit", express.static("build/www"));
+	router.use("/new", express.static("build/www"));
 }
 
 /** Error handling */
