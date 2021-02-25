@@ -135,7 +135,7 @@ const addEntry = async (req: Request, res: Response): Promise<void> => {
 			const { date, description, amount, CategoryId, Category } = entries[i];
 			if (!date || !description || !amount || (!CategoryId && !Category.id)) {
 				throw new ParameterError(
-					`Missing either parameters in entries[${i}].\n Entry: ${entries[i]}`);
+					`Missing either parameters in entries[${i}].`);
 			}
 
 			/* Allow client to use category instead of CategoryId */
