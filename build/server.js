@@ -3,11 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var https_1 = __importDefault(require("https"));
 var http_1 = __importDefault(require("http"));
 var express_1 = __importDefault(require("express"));
 var cors_1 = __importDefault(require("cors"));
-var fs_1 = __importDefault(require("fs"));
 var express_openid_connect_1 = require("express-openid-connect");
 var logging_1 = __importDefault(require("./config/logging"));
 var config_1 = __importDefault(require("./config/config"));
@@ -29,7 +27,6 @@ var authConfig = {
     clientID: process.env.clientID,
     issuerBaseURL: process.env.issuerBaseURL
 };
-var credentials = undefined;
 sql_1.MariaDB.authenticate().then(function () {
     logging_1.default.info(NAMESPACE, "MariaDB connected successfully!");
     category_2.Category.sync().then(function () {
@@ -42,21 +39,6 @@ sql_1.MariaDB.authenticate().then(function () {
 });
 if (production) {
     router.use(express_openid_connect_1.auth(authConfig));
-    try {
-        var letsEncrypt = process.env.letsEncrypt;
-        var privateKey = fs_1.default.readFileSync(letsEncrypt + "/privkey.pem", "utf8");
-        var certificate = fs_1.default.readFileSync(letsEncrypt + "//cert.pem", "utf8");
-        var ca = fs_1.default.readFileSync(letsEncrypt + "//chain.pem", "utf8");
-        credentials = {
-            key: privateKey,
-            cert: certificate,
-            ca: ca
-        };
-    }
-    catch (err) {
-        logging_1.default.error(NAMESPACE, "Could not find or read LE-keys. Exiting.");
-        process.exit(1);
-    }
 }
 router.use(cors_1.default());
 /** Log the request */
@@ -79,15 +61,6 @@ router.use("/api", function (req, res, next) {
     next();
 });
 if (production) {
-    router.use(function (req, res, next) {
-        if (req.secure) {
-            // request was via https, so do no special handling
-            next();
-        }
-        else {
-            res.redirect("https://" + req.headers.host + req.url);
-        }
-    });
     /** Routes go here */
     router.use("/api/entry", express_openid_connect_1.requiresAuth(), entry_1.default);
     router.use("/api/category", express_openid_connect_1.requiresAuth(), category_1.default);
@@ -112,16 +85,5 @@ router.use("*", function (_, res) {
         message: error.message
     });
 });
-if (production) {
-    if (!credentials) {
-        logging_1.default.error(NAMESPACE, "No credentials. Exiting.");
-        process.exit(1);
-    }
-    var httpsServer = https_1.default.createServer(credentials, router);
-    httpsServer.listen(config_1.default.server.httpsPort, function () { return logging_1.default.info(NAMESPACE, "Server is running https://" + config_1.default.server.hostname + ":" + config_1.default.server.httpsPort); });
-    // TODO: add a http server to redirect to HTTPS
-}
-else {
-    var httpServer = http_1.default.createServer(router);
-    httpServer.listen(config_1.default.server.httpPort, function () { return logging_1.default.info(NAMESPACE, "Server is running http://" + config_1.default.server.hostname + ":" + config_1.default.server.httpPort); });
-}
+var httpServer = http_1.default.createServer(router);
+httpServer.listen(config_1.default.server.httpPort, function () { return logging_1.default.info(NAMESPACE, "Server is running http://" + config_1.default.server.hostname + ":" + config_1.default.server.httpPort); });

@@ -1,8 +1,6 @@
-import https from "https";
 import http from "http";
 import express from "express";
 import cors from "cors";
-import fs from "fs";
 import { auth, requiresAuth } from "express-openid-connect";
 
 import logging from "./config/logging";
@@ -30,8 +28,6 @@ const authConfig = {
 	issuerBaseURL: process.env.issuerBaseURL
 };
 
-let credentials: { key: string, cert: string, ca: string; } | undefined = undefined;
-
 MariaDB.authenticate().then(() => {
 	logging.info(NAMESPACE, "MariaDB connected successfully!");
 	Category.sync().then(() => {
@@ -45,22 +41,6 @@ MariaDB.authenticate().then(() => {
 
 if (production) {
 	router.use(auth(authConfig));
-
-	try {
-		const letsEncrypt = process.env.letsEncrypt;
-		const privateKey = fs.readFileSync(`${letsEncrypt}/privkey.pem`, "utf8");
-		const certificate = fs.readFileSync(`${letsEncrypt}//cert.pem`, "utf8");
-		const ca = fs.readFileSync(`${letsEncrypt}//chain.pem`, "utf8");
-
-		credentials = {
-			key: privateKey,
-			cert: certificate,
-			ca: ca
-		};
-	} catch (err) {
-		logging.error(NAMESPACE, "Could not find or read LE-keys. Exiting.");
-		process.exit(1);
-	}
 }
 
 router.use(cors());
@@ -92,15 +72,6 @@ router.use("/api", (req, res, next) => {
 });
 
 if (production) {
-
-	router.use((req, res, next) => {
-		if (req.secure) {
-			// request was via https, so do no special handling
-			next();
-		} else {
-			res.redirect("https://" + req.headers.host + req.url);
-		}
-	});
 	/** Routes go here */
 	router.use("/api/entry", requiresAuth(), entryRoutes);
 	router.use("/api/category", requiresAuth(), categoryRoutes);
@@ -128,16 +99,5 @@ router.use("*", (_, res) => {
 	});
 });
 
-if (production) {
-	if (!credentials) {
-		logging.error(NAMESPACE, "No credentials. Exiting.");
-		process.exit(1);
-	}
-
-	const httpsServer = https.createServer(credentials, router);
-	httpsServer.listen(config.server.httpsPort, () => logging.info(NAMESPACE, `Server is running https://${config.server.hostname}:${config.server.httpsPort}`));
-	// TODO: add a http server to redirect to HTTPS
-} else {
-	const httpServer = http.createServer(router);
-	httpServer.listen(config.server.httpPort, () => logging.info(NAMESPACE, `Server is running http://${config.server.hostname}:${config.server.httpPort}`));
-}
+const httpServer = http.createServer(router);
+httpServer.listen(config.server.httpPort, () => logging.info(NAMESPACE, `Server is running http://${config.server.hostname}:${config.server.httpPort}`));
