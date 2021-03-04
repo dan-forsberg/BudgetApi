@@ -5,7 +5,7 @@ services:
     image: mariadb
     restart: unless-stopped
     environment: 
-      - MYSQL_RANDOM_ROOT_PASSWORD
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
       - MYSQL_USER=economy
       - MYSQL_PASSWORD=economy
       - MYSQL_DATABASE=economy
