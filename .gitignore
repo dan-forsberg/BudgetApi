@@ -137,3 +137,5 @@ yarn.lock
 
 build/www/*
 .env
+
+data/certbot/*
