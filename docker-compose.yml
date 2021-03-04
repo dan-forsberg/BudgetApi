@@ -14,7 +14,8 @@ services:
       - /home/node/docker/mysql:/var/lib/mysql
 
   budget-api:
-    build: .
+    image: budget-api
+    #build: .
     restart: unless-stopped
     env_file:
       - .env
