@@ -2,19 +2,19 @@ version: '3.1'
 
 services:
 
+
   db:
     image: mariadb
-    restart: always
-    #environment:
-    #  MYSQL_ROOT_PASSWORD: example
-    #  MYSQL_DATABASE: economy
-    #  MYSQL_USER: economy
-    #  MYSQL_PASSWORD: economy
+    restart: unless-stopped
     volumes:
       - /var/lib/mysql:/var/lib/mysql
 
   budget-api:
     image: budget-api
-    restart: always
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - db
     ports:
       - 8080:8080
