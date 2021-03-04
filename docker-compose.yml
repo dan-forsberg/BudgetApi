@@ -15,6 +15,9 @@ services:
     restart: unless-stopped
     environment: 
       - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=economy
+      - MYSQL_PASSWORD=economy
+      - MYSQL_DATABASE=economy
     volumes:
       - /home/node/docker/mysql:/var/lib/mysql
 
