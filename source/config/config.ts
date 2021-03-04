@@ -1,12 +1,11 @@
 const sql = {
-	database: process.env.db || "economy",
-	username: process.env.dbUser || "economy",
-	password: process.env.dbPassword || "economy",
-	host: process.env.dbHost || "0.0.0.0",
-	port: process.env.dbPort || 3306,
-	dialect: "mariadb",
-	// if dbLogging is set, logg, otherwise don't log any queries 
-	logging: process.env.dbLogging !== undefined,
+	database: process.env.DB_NAME || "economy",
+	username: process.env.DB_USER || "economy",
+	password: process.env.DB_PASSWD || "economy",
+	host: process.env.DB_HOST || "0.0.0.0",
+	port: process.env.DB_PORT || 3306,
+	logging: process.env.DB_LOGGING !== undefined,
+	dialect: "mariadb"
 };
 
 const SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || "0.0.0.0";
