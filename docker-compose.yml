@@ -2,7 +2,8 @@ version: '3.5'
 
 services:
   db:
-    image: mariadb
+    # MariaDB for RPI
+    image: jsurf/rpi-raspbian:latest
     restart: unless-stopped
     environment: 
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
