@@ -11,3 +11,5 @@ exports.MariaDB = new sequelize_1.Sequelize(config_1.default.sql.database, confi
     dialect: "mariadb",
     logging: config_1.default.sql.logging
 });
+
+console.dir(config_1.default.sql);
