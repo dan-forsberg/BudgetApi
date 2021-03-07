@@ -1,7 +1,7 @@
 FROM node:15
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /home/pi/Programmering/BudgetAPI
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
