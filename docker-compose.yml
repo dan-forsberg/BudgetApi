@@ -2,10 +2,9 @@ version: '3.5'
 
 services:
   db:
-    # MariaDB for RPI
-    image: jsurf/rpi-raspbian:latest
+    image: linuxserver/mariadb
     restart: unless-stopped
-    environment: 
+    environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
       - MYSQL_USER=economy
       - MYSQL_PASSWORD=economy
@@ -14,7 +13,7 @@ services:
       - /home/node/docker/mysql:/var/lib/mysql
 
   budget-api:
-    build: .
+    image: budget-api
     restart: unless-stopped
     env_file:
       - .env
@@ -22,10 +21,10 @@ services:
       - db
     ports:
       - 8080:8080
-    networks: 
+    networks:
       - budget
       - default
 
-networks: 
+networks:
   budget:
     name: budget_network
