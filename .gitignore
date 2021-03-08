@@ -135,7 +135,5 @@ dist
 yarn.lock
 # build/* # uncommenting this to compile on a real computer to send to rpi
 
-build/www/*
+build/*
 .env
-
-data/certbot/*
