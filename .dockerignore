@@ -1,6 +1,2 @@
 .env
-.gitignore
-.git
-Readme.org
-source/*
 node_modules/*
