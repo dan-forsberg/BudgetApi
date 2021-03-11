@@ -4,9 +4,9 @@
 	"description": "",
 	"main": "source/server.ts",
 	"scripts": {
-		"build": "rm -rf build && tsc && cp -r ../BudgetUI/public/* ./build/",
-		"dev": "cp -r ../BudgetUI/public/* ./build/ && ts-node-dev -r dotenv/config source/server.ts",
-		"prestart": "cp -r ../BudgetUI/public/* ./build/",
+		"build": "rm -rf build && tsc && cp -r ../BudgetUI/public/* ./build/www",
+		"dev": "cp -r ../BudgetUI/public/* ./build/www && ts-node-dev -r dotenv/config source/server.ts",
+		"prestart": "cp -r ../BudgetUI/public/* ./build/www",
 		"start": "NODE_ENV=production node -r dotenv/config build/server.js"
 	},
 	"author": "",
