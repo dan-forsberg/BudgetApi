@@ -4,8 +4,9 @@
 	"description": "",
 	"main": "source/server.ts",
 	"scripts": {
-		"build": "rm -rf build && tsc && cp -r ../BudgetUI/public/* ./build/www",
-		"dev": "cp -r ../BudgetUI/public/* ./build/www && ts-node-dev -r dotenv/config source/server.ts",
+		"copyUI": "mkdir ./build/www; cp -r ../BudgetUI/public/* ./build/www",
+		"build": "rm -rf build && tsc && yarn run copyUI",
+		"dev": "ts-node-dev -r dotenv/config source/server.ts",
 		"start": "NODE_ENV=production node -r dotenv/config build/server.js"
 	},
 	"author": "",
