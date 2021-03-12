@@ -4,7 +4,7 @@
 	"description": "Budget helper",
 	"main": "source/server.ts",
 	"scripts": {
-		"copyUI": "mkdir ./build/www; cp -r ../BudgetUI/public/* ./build/www",
+		"copyUI": "cp -r ../BudgetUI/public/* ./build/www",
 		"build": "npx tsc",
 		"dev": "ts-node-dev -r dotenv/config source/server.ts",
 		"start": "node -r dotenv/config build/server.js",
