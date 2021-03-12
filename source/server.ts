@@ -19,15 +19,6 @@ const NAMESPACE = "Server";
 const router = express();
 const production = process.env.NODE_ENV === "production";
 
-const authConfig = {
-	authRequired: false,
-	auth0Logout: true,
-	secret: process.env.secret,
-	baseURL: process.env.baseURL,
-	clientID: process.env.clientID,
-	issuerBaseURL: process.env.issuerBaseURL
-};
-
 MariaDB.authenticate().then(() => {
 	logging.info(NAMESPACE, "MariaDB connected successfully!");
 	Category.sync().then(() => {
@@ -40,6 +31,15 @@ MariaDB.authenticate().then(() => {
 });
 
 if (production) {
+	const authConfig = {
+		authRequired: false,
+		auth0Logout: true,
+		secret: process.env.secret,
+		baseURL: process.env.baseURL,
+		clientID: process.env.clientID,
+		issuerBaseURL: process.env.issuerBaseURL
+	};
+
 	router.use(auth(authConfig));
 }
 

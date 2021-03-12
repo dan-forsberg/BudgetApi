@@ -19,14 +19,6 @@ var defaultEntry_2 = require("./models/defaultEntry");
 var NAMESPACE = "Server";
 var router = express_1.default();
 var production = process.env.NODE_ENV === "production";
-var authConfig = {
-    authRequired: false,
-    auth0Logout: true,
-    secret: process.env.secret,
-    baseURL: process.env.baseURL,
-    clientID: process.env.clientID,
-    issuerBaseURL: process.env.issuerBaseURL
-};
 sql_1.MariaDB.authenticate().then(function () {
     logging_1.default.info(NAMESPACE, "MariaDB connected successfully!");
     category_2.Category.sync().then(function () {
@@ -38,6 +30,14 @@ sql_1.MariaDB.authenticate().then(function () {
     process.exit(1);
 });
 if (production) {
+    var authConfig = {
+        authRequired: false,
+        auth0Logout: true,
+        secret: process.env.secret,
+        baseURL: process.env.baseURL,
+        clientID: process.env.clientID,
+        issuerBaseURL: process.env.issuerBaseURL
+    };
     router.use(express_openid_connect_1.auth(authConfig));
 }
 router.use(cors_1.default());
