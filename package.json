@@ -7,7 +7,7 @@
 		"copyUI": "mkdir ./build/www; cp -r ../BudgetUI/public/* ./build/www",
 		"build": "rm -rf build && tsc && yarn run copyUI",
 		"dev": "ts-node-dev -r dotenv/config source/server.ts",
-		"start": "NODE_ENV=production node -r dotenv/config build/server.js"
+		"start": "node -r dotenv/config build/server.js"
 	},
 	"author": "Dan Forsberg",
 	"license": "ISC",
