@@ -7,7 +7,8 @@
 		"copyUI": "mkdir ./build/www; cp -r ../BudgetUI/public/* ./build/www",
 		"build": "npx tsc",
 		"dev": "ts-node-dev -r dotenv/config source/server.ts",
-		"start": "node -r dotenv/config build/server.js"
+		"start": "node -r dotenv/config build/server.js",
+		"builddocker": "yarn run copyUI && docker buildx build --platform linux/arm/v7 -t danforsberg/budgetapi . --push"
 	},
 	"author": "Dan Forsberg",
 	"license": "ISC",
