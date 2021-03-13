@@ -47,10 +47,12 @@ router.use(cors());
 
 /** Log the request */
 router.use((req, res, next) => {
-	logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}]`);
+	const remoteIP = req.header("x-forwarded-for");
+
+	logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - IP: [${remoteIP}]`);
 
 	res.on("finish", () => {
-		logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - STATUS: [${res.statusCode}] - IP: [${req.socket.remoteAddress}]`);
+		logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - STATUS: [${res.statusCode}] - IP: [${remoteIP}]`);
 	});
 
 	next();
