@@ -47,10 +47,12 @@ router.use(cors());
 
 /** Log the request */
 router.use((req, res, next) => {
-	logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}]`);
+	const IP = req.header("x-real-ip");
+	logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - IP: [${IP}]`);
 
 	res.on("finish", () => {
-		logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - STATUS: [${res.statusCode}] - IP: [${req.socket.remoteAddress}]`);
+		logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - STATUS: [${res.statusCode}] 
+		- IP: [${IP}]`);
 	});
 
 	next();
@@ -72,7 +74,6 @@ router.use("/api", (req, res, next) => {
 });
 
 if (production) {
-	/** Routes go here */
 	router.use("/api/entry", requiresAuth(), entryRoutes);
 	router.use("/api/category", requiresAuth(), categoryRoutes);
 	router.use("/api/default", requiresAuth(), defaultRoutes);
