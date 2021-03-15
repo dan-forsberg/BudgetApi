@@ -1,7 +1,8 @@
 import http from "http";
 import express from "express";
 import cors from "cors";
-import { auth, requiresAuth } from "express-openid-connect";
+import jwt from "express-jwt";
+import jwksRsa from "jwks-rsa";
 
 import logging from "./config/logging";
 import config from "./config/config";
@@ -30,19 +31,6 @@ MariaDB.authenticate().then(() => {
 	process.exit(1);
 });
 
-if (production) {
-	const authConfig = {
-		authRequired: false,
-		auth0Logout: true,
-		secret: process.env.secret,
-		baseURL: process.env.baseURL,
-		clientID: process.env.clientID,
-		issuerBaseURL: process.env.issuerBaseURL
-	};
-
-	router.use(auth(authConfig));
-}
-
 router.use(cors());
 
 /** Log the request */
@@ -55,22 +43,40 @@ router.use((req, _, next) => {
 router.use(express.urlencoded({ extended: true }));
 router.use(express.json());
 
-router.use("/api", (req, res, next) => {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+// router.use("/api", (req, res, next) => {
+// 	res.header("Access-Control-Allow-Origin", "*");
+// 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
-	if (req.method == "OPTIONS") {
-		res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
-		return res.status(200).json({});
-	}
+// 	if (req.method == "OPTIONS") {
+// 		res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
+// 		return res.status(200).json({});
+// 	}
 
-	next();
-});
+// 	next();
+// });
 
 if (production) {
-	router.use("/api/entry", requiresAuth(), entryRoutes);
-	router.use("/api/category", requiresAuth(), categoryRoutes);
-	router.use("/api/default", requiresAuth(), defaultRoutes);
+	const authConfig = {
+		"domain": "dev-dasifor.eu.auth0.com",
+		"clientId": "vhUNwnbQjgfNYQidvev130RipVSa28ay",
+		"audience": "https://dasifor.xyz/api"
+	};
+	const checkJwt = jwt({
+		secret: jwksRsa.expressJwtSecret({
+			cache: true,
+			rateLimit: true,
+			jwksRequestsPerMinute: 5,
+			jwksUri: `https://${authConfig.domain}/.well-known/jwks.json`
+		}),
+
+		audience: authConfig.audience,
+		issuer: `https://${authConfig.domain}/`,
+		algorithms: ["RS256"]
+	});
+
+	router.use("/api/entry", checkJwt, entryRoutes);
+	router.use("/api/category", checkJwt, categoryRoutes);
+	router.use("/api/default", checkJwt, defaultRoutes);
 } else {
 	router.use("/api/entry", entryRoutes);
 	router.use("/api/category", categoryRoutes);
@@ -84,6 +90,11 @@ router.use("*", (_, res) => {
 	res.status(404).json({
 		message: error.message
 	});
+});
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+router.use(function (err: Error, _req: unknown, _res: unknown, _next: unknown) {
+	logging.error(NAMESPACE, "Error: " + err.message);
 });
 
 const httpServer = http.createServer(router);

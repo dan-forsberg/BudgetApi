@@ -4,9 +4,8 @@
 	"description": "Budget helper",
 	"main": "source/server.ts",
 	"scripts": {
-		"copyUI": "cp -r ../BudgetUI/public/* ./build/www",
 		"build": "npx tsc",
-		"dev": "yarn run copyUI && ts-node-dev -r dotenv/config source/server.ts",
+		"dev": "ts-node-dev -r dotenv/config source/server.ts",
 		"start": "node -r dotenv/config build/server.js",
 		"builddocker": "docker buildx build --platform linux/arm/v7 -t danforsberg/budgetapi . --push"
 	},
@@ -16,7 +15,8 @@
 		"cors": "^2.8.5",
 		"dotenv": "^8.2.0",
 		"express": "^4.17.1",
-		"express-openid-connect": "^2.2.1",
+		"express-jwt": "^6.0.0",
+		"jwks-rsa": "^2.0.1",
 		"mariadb": "^2.5.2",
 		"sequelize": "^6.5.0"
 	},
@@ -24,6 +24,7 @@
 		"@types/cors": "^2.8.9",
 		"@types/errorhandler": "^1.5.0",
 		"@types/express": "^4.17.8",
+		"@types/express-jwt": "^6.0.1",
 		"@types/node": "^14.14.25",
 		"@types/sequelize": "^4.28.9",
 		"@typescript-eslint/eslint-plugin": "^4.14.2",
