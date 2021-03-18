@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Op } from "sequelize";
+import { Op, WhereOptions } from "sequelize";
 import logging from "../config/logging";
 import { ParameterError } from "../interfaces/errors";
 import { Category } from "../models/category";
@@ -34,11 +34,11 @@ const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 		res.status(500);
 	}
 };
-type whereQuery = { date?: unknown, CategoryID?: unknown, amount?: unknown, description?: unknown; };
-const constructWhereQuery = (req: Request): whereQuery => {
+
+const constructWhereQuery = (req: Request): WhereOptions => {
 	const query = req.query;
 
-	const result: whereQuery = {};
+	const result: WhereOptions = {};
 
 	// Date
 	const year = query.year as unknown as number;
@@ -82,7 +82,6 @@ const getSpecific = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const query = constructWhereQuery(req);
 		const result = await Entry.findAll({
-			//@ts-expect-error TS doesn't like this, but it constructs a completely valid query as expected
 			where: { ...query },
 			attributes: selectRelevant,
 			include: {
@@ -128,8 +127,10 @@ const addEntry = async (req: Request, res: Response): Promise<void> => {
 		for (let i = 0; i < entries.length; i++) {
 			const { date, description, amount, CategoryId, Category } = entries[i];
 			if (!date || !description || !amount || (!CategoryId && !Category.id)) {
+				console.dir(entries[i]);
+				console.log(`Date: ${date}, description: ${description}, amount: ${amount}, CategoryId: ${CategoryId}, Category.id: ${Category.id}`);
 				throw new ParameterError(
-					`Missing either parameters in entries[${i}].`);
+					`Missing some parameter(s) in entries[${i}].`);
 			}
 
 			/* Allow client to use category instead of CategoryId */
