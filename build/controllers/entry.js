@@ -133,7 +133,6 @@ var getSpecific = function (req, res) { return __awaiter(void 0, void 0, void 0,
                 _a.trys.push([0, 2, , 3]);
                 query = constructWhereQuery(req);
                 return [4 /*yield*/, entry_1.Entry.findAll({
-                        //@ts-expect-error TS doesn't like this, but it constructs a completely valid query as expected
                         where: __assign({}, query),
                         attributes: selectRelevant,
                         include: {
@@ -176,7 +175,9 @@ var addEntry = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
                 for (i = 0; i < entries.length; i++) {
                     _a = entries[i], date = _a.date, description = _a.description, amount = _a.amount, CategoryId = _a.CategoryId, Category_1 = _a.Category;
                     if (!date || !description || !amount || (!CategoryId && !Category_1.id)) {
-                        throw new errors_1.ParameterError("Missing either parameters in entries[" + i + "].");
+                        console.dir(entries[i]);
+                        console.log("Date: " + date + ", description: " + description + ", amount: " + amount + ", CategoryId: " + CategoryId + ", Category.id: " + Category_1.id);
+                        throw new errors_1.ParameterError("Missing some parameter(s) in entries[" + i + "].");
                     }
                     /* Allow client to use category instead of CategoryId */
                     if (Category_1.id && !CategoryId) {
