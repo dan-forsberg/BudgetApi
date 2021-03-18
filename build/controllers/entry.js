@@ -51,10 +51,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var sequelize_1 = require("sequelize");
-var logging_1 = __importDefault(require("../config/logging"));
 var errors_1 = require("../interfaces/errors");
 var category_1 = require("../models/category");
 var entry_1 = require("../models/entry");
+var logging_1 = __importDefault(require("../config/logging"));
 var workspace = "entry-ctrl";
 var selectRelevant = ["id", "date", "description", "amount"];
 var getAllEntries = function (_, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -161,36 +161,26 @@ var getSpecific = function (req, res) { return __awaiter(void 0, void 0, void 0,
     });
 }); };
 var addEntry = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var entries, i, _a, date, description, amount, CategoryId, Category_1, result, err_3;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var input, entries_1, result, err_3;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
             case 0:
-                _b.trys.push([0, 2, , 3]);
-                entries = req.body.entries;
-                // check that entries is an array
-                if (!entries || !Array.isArray(entries) || entries.length < 1) {
-                    throw new errors_1.ParameterError("Expected entries to be an array.");
+                _a.trys.push([0, 2, , 3]);
+                input = req.body.entries;
+                if (!Array.isArray(input) || input.length === 0) {
+                    throw new errors_1.ParameterError("Expected input to be array.");
                 }
-                // check that entries.date, description, amount and categories exist
-                for (i = 0; i < entries.length; i++) {
-                    _a = entries[i], date = _a.date, description = _a.description, amount = _a.amount, CategoryId = _a.CategoryId, Category_1 = _a.Category;
-                    if (!date || !description || !amount || (!CategoryId && !Category_1.id)) {
-                        console.dir(entries[i]);
-                        console.log("Date: " + date + ", description: " + description + ", amount: " + amount + ", CategoryId: " + CategoryId + ", Category.id: " + Category_1.id);
-                        throw new errors_1.ParameterError("Missing some parameter(s) in entries[" + i + "].");
-                    }
-                    /* Allow client to use category instead of CategoryId */
-                    if (Category_1.id && !CategoryId) {
-                        entries[i].CategoryId = Category_1.id;
-                    }
-                }
-                return [4 /*yield*/, entry_1.Entry.bulkCreate(entries)];
+                entries_1 = [];
+                input.forEach(function (value) {
+                    entries_1.push(parseEntry(value));
+                });
+                return [4 /*yield*/, entry_1.Entry.bulkCreate(entries_1)];
             case 1:
-                result = _b.sent();
+                result = _a.sent();
                 res.status(201).json(result);
                 return [3 /*break*/, 3];
             case 2:
-                err_3 = _b.sent();
+                err_3 = _a.sent();
                 if (err_3 instanceof errors_1.ParameterError) {
                     console.log(err_3.message);
                     res.status(400).json(err_3.message);
@@ -205,7 +195,7 @@ var addEntry = function (req, res) { return __awaiter(void 0, void 0, void 0, fu
     });
 }); };
 var updateEntry = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var entryToUpdateID, newEntry, entryRow, result, err_4;
+    var entryToUpdateID, newEntry, entryRow, parsedEntry, result, err_4;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -220,16 +210,14 @@ var updateEntry = function (req, res) { return __awaiter(void 0, void 0, void 0,
                 else if (isNaN(entryToUpdateID)) {
                     throw new errors_1.ParameterError("ID is NaN.");
                 }
-                else if (!newEntry.date && !newEntry.description && !newEntry.amount && !newEntry.CategoryId) {
-                    throw new errors_1.ParameterError("No proper parameters in body. Expected date, description, amount or CategoryId.");
-                }
                 return [4 /*yield*/, entry_1.Entry.findByPk(entryToUpdateID)];
             case 2:
                 entryRow = _a.sent();
                 if (!entryRow) {
                     throw new errors_1.ParameterError("Could not find entry with ID " + entryToUpdateID);
                 }
-                return [4 /*yield*/, entryRow.update(newEntry)];
+                parsedEntry = parseEntry(newEntry, true);
+                return [4 /*yield*/, entryRow.update(parsedEntry)];
             case 3:
                 result = _a.sent();
                 res.status(200).json({ result: result });
@@ -237,6 +225,7 @@ var updateEntry = function (req, res) { return __awaiter(void 0, void 0, void 0,
             case 4:
                 err_4 = _a.sent();
                 if (err_4 instanceof errors_1.ParameterError) {
+                    logging_1.default.error(workspace, "Unable to update entry. " + err_4.message, err_4);
                     res.status(400).json({ message: err_4.message });
                 }
                 else {
@@ -277,4 +266,33 @@ var removeEntry = function (req, res) { return __awaiter(void 0, void 0, void 0,
         }
     });
 }); };
+/*
+* Request should look like
+* entries: [{
+*   date: 2021-03-01. 2021-03-31, somewhere in between or just 2021-03
+*   description: "Lön"
+*   amount: 1000
+*   CategoryId: {id of Dan}
+* }, ...]
+*/
+function parseEntry(entry, allowCatName) {
+    if (allowCatName === void 0) { allowCatName = false; }
+    if (entry === undefined || entry === null) {
+        throw new errors_1.ParameterError("Entry is undefined or null.");
+    }
+    /* check that entries.date, description, amount and category exist */
+    var date = entry.date, description = entry.description, amount = entry.amount, CategoryId = entry.CategoryId, Category = entry.Category;
+    if (date === undefined ||
+        description === undefined ||
+        amount === undefined ||
+        (!allowCatName && CategoryId === undefined && Category.id === undefined) ||
+        (allowCatName && Category == undefined)) {
+        throw new errors_1.ParameterError("Missing some parameter(s) in entry\n" + entry + ".");
+    }
+    /* Allow client to use category instead of CategoryId */
+    if (!allowCatName && Category.id && !CategoryId) {
+        entry.CategoryId = Category.id;
+    }
+    return entry;
+}
 exports.default = { getAllEntries: getAllEntries, addEntry: addEntry, getSpecific: getSpecific, updateEntry: updateEntry, removeEntry: removeEntry };
