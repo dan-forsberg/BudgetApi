@@ -34,9 +34,15 @@ MariaDB.authenticate().then(() => {
 router.use(cors());
 
 /** Log the request */
-router.use((req, _, next) => {
-	const IP = req.header("x-real-ip");
-	logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - IP: [${IP}]`);
+router.use((req, res, next) => {
+	const remoteIP = req.header("x-forwarded-for");
+
+	logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - IP: [${remoteIP}]`);
+
+	res.on("finish", () => {
+		logging.info(NAMESPACE, `METHOD: [${req.method}] - URL: [${req.url}] - STATUS: [${res.statusCode}] - IP: [${remoteIP}]`);
+	});
+
 	next();
 });
 
