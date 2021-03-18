@@ -196,8 +196,6 @@ function parseEntry(entry: any, allowCatName = false): IEntry {
 		throw new ParameterError("Entry is undefined or null.");
 	}
 
-	console.dir(entry);
-
 	/* check that entries.date, description, amount and category exist */
 	const { date, description, amount, CategoryId, Category } = entry;
 	if (date === undefined ||
