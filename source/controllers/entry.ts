@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { Op, WhereOptions } from "sequelize";
-import logging from "../config/logging";
 import { ParameterError } from "../interfaces/errors";
 import { Category } from "../models/category";
 import { Entry } from "../models/entry";
+import logging from "../config/logging";
+import IEntry from "../interfaces/entry";
 
 const workspace = "entry-ctrl";
 const selectRelevant = ["id", "date", "description", "amount"];
@@ -107,37 +108,16 @@ const getSpecific = async (req: Request, res: Response): Promise<void> => {
 
 
 const addEntry = async (req: Request, res: Response): Promise<void> => {
-	/*
-	* Request should look like
-	* entries: [{
-	*   date: 2021-03-01. 2021-03-31, somewhere in between or just 2021-03
-	*   description: "Lön"
-	*   amount: 1000
-	*   CategoryId: {id of Dan}
-	* }, ...]
-	*/
 	try {
-		const entries = req.body.entries;
-		// check that entries is an array
-		if (!entries || !Array.isArray(entries) || entries.length < 1) {
-			throw new ParameterError("Expected entries to be an array.");
+		const input = req.body.entries;
+		if (!Array.isArray(input) || input.length === 0) {
+			throw new ParameterError("Expected input to be array.");
 		}
 
-		// check that entries.date, description, amount and categories exist
-		for (let i = 0; i < entries.length; i++) {
-			const { date, description, amount, CategoryId, Category } = entries[i];
-			if (!date || !description || !amount || (!CategoryId && !Category.id)) {
-				console.dir(entries[i]);
-				console.log(`Date: ${date}, description: ${description}, amount: ${amount}, CategoryId: ${CategoryId}, Category.id: ${Category.id}`);
-				throw new ParameterError(
-					`Missing some parameter(s) in entries[${i}].`);
-			}
-
-			/* Allow client to use category instead of CategoryId */
-			if (Category.id && !CategoryId) {
-				entries[i].CategoryId = Category.id;
-			}
-		}
+		const entries: IEntry[] = [];
+		input.forEach((value) => {
+			entries.push(parseEntry(value));
+		});
 
 		const result = await Entry.bulkCreate(entries);
 		res.status(201).json(result);
@@ -162,8 +142,6 @@ const updateEntry = async (req: Request, res: Response): Promise<void> => {
 			throw new ParameterError("No entry in body.");
 		} else if (isNaN(entryToUpdateID)) {
 			throw new ParameterError("ID is NaN.");
-		} else if (!newEntry.date && !newEntry.description && !newEntry.amount && !newEntry.CategoryId) {
-			throw new ParameterError("No proper parameters in body. Expected date, description, amount or CategoryId.");
 		}
 
 		const entryRow = await Entry.findByPk(entryToUpdateID);
@@ -171,10 +149,13 @@ const updateEntry = async (req: Request, res: Response): Promise<void> => {
 			throw new ParameterError(`Could not find entry with ID ${entryToUpdateID}`);
 		}
 
-		const result = await entryRow.update(newEntry);
+		const parsedEntry = parseEntry(newEntry, true);
+		const result = await entryRow.update(parsedEntry);
+
 		res.status(200).json({ result: result });
 	} catch (err) {
 		if (err instanceof ParameterError) {
+			logging.error(workspace, `Unable to update entry. ${err.message}`, err);
 			res.status(400).json({ message: err.message });
 		}
 		else {
@@ -200,5 +181,41 @@ const removeEntry = async (req: Request, res: Response): Promise<void> => {
 		}
 	}
 };
+
+/*
+* Request should look like
+* entries: [{
+*   date: 2021-03-01. 2021-03-31, somewhere in between or just 2021-03
+*   description: "Lön"
+*   amount: 1000
+*   CategoryId: {id of Dan}
+* }, ...]
+*/
+function parseEntry(entry: any, allowCatName = false): IEntry {
+	if (entry === undefined || entry === null) {
+		throw new ParameterError("Entry is undefined or null.");
+	}
+
+	console.dir(entry);
+
+	/* check that entries.date, description, amount and category exist */
+	const { date, description, amount, CategoryId, Category } = entry;
+	if (date === undefined ||
+		description === undefined ||
+		amount === undefined ||
+		(!allowCatName && CategoryId === undefined && Category.id === undefined) ||
+		(allowCatName && Category == undefined)
+	) {
+		throw new ParameterError(
+			`Missing some parameter(s) in entry\n${entry}.`);
+	}
+
+	/* Allow client to use category instead of CategoryId */
+	if (!allowCatName && Category.id && !CategoryId) {
+		entry.CategoryId = Category.id;
+	}
+
+	return entry;
+}
 
 export default { getAllEntries, addEntry, getSpecific, updateEntry, removeEntry };
