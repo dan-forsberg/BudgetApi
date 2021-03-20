@@ -57,7 +57,7 @@ async function getOtherCategoriesValues(ignoreCategories: string[]):
 	let result: any[] = [];
 	try {
 		result = await Entry.findAll({
-			attributes: [...selectRelevant, ["createdAt", "date"]],
+			attributes: [...selectRelevant, [sequelize.literal("NOW()"), "date"]],
 			include: {
 				model: Category,
 				required: true,
