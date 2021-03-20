@@ -149,7 +149,7 @@ const updateEntry = async (req: Request, res: Response): Promise<void> => {
 			throw new ParameterError(`Could not find entry with ID ${entryToUpdateID}`);
 		}
 
-		const parsedEntry = parseEntry(newEntry, true);
+		const parsedEntry = parseEntry(newEntry);
 		const result = await entryRow.update(parsedEntry);
 
 		res.status(200).json({ result: result });
@@ -191,7 +191,7 @@ const removeEntry = async (req: Request, res: Response): Promise<void> => {
 *   CategoryId: {id of Dan}
 * }, ...]
 */
-function parseEntry(entry: any, allowCatName = false): IEntry {
+function parseEntry(entry: any): IEntry {
 	if (entry === undefined || entry === null) {
 		throw new ParameterError("Entry is undefined or null.");
 	}
@@ -201,15 +201,14 @@ function parseEntry(entry: any, allowCatName = false): IEntry {
 	if (date === undefined ||
 		description === undefined ||
 		amount === undefined ||
-		(!allowCatName && CategoryId === undefined && Category.id === undefined) ||
-		(allowCatName && Category == undefined)
+		(Category === undefined && CategoryId === undefined && Category.id === undefined)
 	) {
 		throw new ParameterError(
 			`Missing some parameter(s) in entry\n${entry}.`);
 	}
 
 	/* Allow client to use category instead of CategoryId */
-	if (!allowCatName && Category.id && !CategoryId) {
+	if (Category.id && !CategoryId) {
 		entry.CategoryId = Category.id;
 	}
 
