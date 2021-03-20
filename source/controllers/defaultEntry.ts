@@ -1,39 +1,108 @@
 import { Request, Response } from "express";
+import { Op } from "sequelize";
 import logging from "../config/logging";
 import { ParameterError } from "../interfaces/errors";
 import { Category } from "../models/category";
 import { DefaultEntry } from "../models/defaultEntry";
+import { Entry } from "../models/entry";
 
 const workspace = "default-entry-ctrl";
 const selectRelevant = ["description", "amount"];
 
 const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 	try {
-		const result = await DefaultEntry.findAll({
-			attributes: selectRelevant,
-			include: {
-				model: Category,
-				required: true,
-				attributes: ["name", "id"]
-			}
-		}) as any[];
+		// first get all the default entries
+		let { categories, entries } = await getDefaultEntries();
+		// figure out what categories are missing
+		let { otherCategories, otherEntries } = await getOtherCategoriesValues(categories);
+		// append the data
+		categories = [...categories, ...otherCategories];
+		entries = [...entries, ...otherEntries];
 
-		const categories: string[] = [];
-		result.forEach(entry => {
-			// inject todays date into the date
-			entry.dataValues.date = new Date();
-
-			// and save the categories into categories
-			if (categories.indexOf(entry.Category.name) == -1) {
-				categories.push(entry.Category.name);
-			}
-		});
-		res.status(200).json({ categories: categories, result: result });
+		res.status(200).json({ categories: categories, result: entries });
 	} catch (err) {
 		logging.error(workspace, "Could not get entries.", err.message);
 		res.status(500);
 	}
 };
+
+async function getDefaultEntries(): Promise<{ categories: string[], entries: any[]; }> {
+	const defaultEntries = await DefaultEntry.findAll({
+		attributes: selectRelevant,
+		include: {
+			model: Category,
+			required: true,
+			attributes: ["name", "id"]
+		}
+	}) as any[];
+
+	return dateifyEntriesGetCategories(defaultEntries);
+}
+
+function dateifyEntriesGetCategories(result: any): { categories: string[], entries: any[]; } {
+	const categories: string[] = [];
+	result.forEach((entry: any) => {
+		// inject todays date into the date
+		entry.dataValues.date = new Date();
+		// and save the resulting categories into categories
+		if (categories.indexOf(entry.Category.name) == -1) {
+			categories.push(entry.Category.name);
+		}
+	});
+
+	return { categories, entries: result };
+}
+
+async function getOtherCategoriesValues(ignoreCategories: string[]):
+	Promise<{ otherCategories: string[], otherEntries: any[]; }> {
+	let { categories, ids } = await findOtherCategories(ignoreCategories);
+	let result: any[] = [];
+	try {
+		result = await Entry.findAll({
+			attributes: [...selectRelevant, "createdAt"],
+			include: {
+				model: Category,
+				required: true,
+				attributes: ["name", "id"]
+			},
+			where: {
+				CategoryId: {
+					[Op.in]: ids
+				}
+			}
+		});
+	} catch (err) {
+		console.error(err);
+	}
+
+	return { otherCategories: categories, otherEntries: result };
+}
+
+async function findOtherCategories(ignoreCategories: string[]): Promise<{ categories: string[], ids: number[]; }> {
+	let categories: string[] = [];
+	let ids: number[] = [];
+
+	try {
+		const result = await Category.findAll({
+			attributes: ["name", "id"],
+			where: {
+				name: {
+					[Op.notIn]: ignoreCategories
+				}
+			}
+		});
+
+		result.forEach(category => {
+			categories.push(category.getDataValue("name"));
+			ids.push(category.getDataValue("id"));
+		});
+
+	} catch (err) {
+		console.error(err);
+	}
+
+	return { categories, ids };
+}
 
 const addEntry = async (req: Request, res: Response): Promise<void> => {
 	/*
