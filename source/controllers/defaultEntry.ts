@@ -37,10 +37,10 @@ async function getDefaultEntries(): Promise<{ categories: string[], entries: any
 		}
 	}) as any[];
 
-	return dateifyEntriesGetCategories(defaultEntries);
+	return parseOutCategories(defaultEntries);
 }
 
-function dateifyEntriesGetCategories(result: any): { categories: string[], entries: any[]; } {
+function parseOutCategories(result: any): { categories: string[], entries: any[]; } {
 	const categories: string[] = [];
 	result.forEach((entry: any) => {
 		if (categories.indexOf(entry.Category.name) == -1) {
