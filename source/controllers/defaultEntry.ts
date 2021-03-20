@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import sequelize from "sequelize";
 import { Op } from "sequelize";
 import logging from "../config/logging";
 import { ParameterError } from "../interfaces/errors";
@@ -28,7 +29,7 @@ const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 
 async function getDefaultEntries(): Promise<{ categories: string[], entries: any[]; }> {
 	const defaultEntries = await DefaultEntry.findAll({
-		attributes: [...selectRelevant, ["NOW()", "date"]],
+		attributes: [...selectRelevant, [sequelize.literal("NOW()"), "date"]],
 		include: {
 			model: Category,
 			required: true,
@@ -42,7 +43,6 @@ async function getDefaultEntries(): Promise<{ categories: string[], entries: any
 function dateifyEntriesGetCategories(result: any): { categories: string[], entries: any[]; } {
 	const categories: string[] = [];
 	result.forEach((entry: any) => {
-		// and save the resulting categories into categories
 		if (categories.indexOf(entry.Category.name) == -1) {
 			categories.push(entry.Category.name);
 		}
