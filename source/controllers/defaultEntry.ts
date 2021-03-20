@@ -22,13 +22,13 @@ const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 		res.status(200).json({ categories: categories, result: entries });
 	} catch (err) {
 		logging.error(workspace, "Could not get entries.", err.message);
-		res.status(500);
+		res.status(500).json({ "message": "Internal error." });
 	}
 };
 
 async function getDefaultEntries(): Promise<{ categories: string[], entries: any[]; }> {
 	const defaultEntries = await DefaultEntry.findAll({
-		attributes: selectRelevant,
+		attributes: [...selectRelevant, ["NOW()", "date"]],
 		include: {
 			model: Category,
 			required: true,
@@ -42,8 +42,6 @@ async function getDefaultEntries(): Promise<{ categories: string[], entries: any
 function dateifyEntriesGetCategories(result: any): { categories: string[], entries: any[]; } {
 	const categories: string[] = [];
 	result.forEach((entry: any) => {
-		// inject todays date into the date
-		entry.dataValues.date = new Date();
 		// and save the resulting categories into categories
 		if (categories.indexOf(entry.Category.name) == -1) {
 			categories.push(entry.Category.name);
@@ -59,7 +57,7 @@ async function getOtherCategoriesValues(ignoreCategories: string[]):
 	let result: any[] = [];
 	try {
 		result = await Entry.findAll({
-			attributes: [...selectRelevant, "createdAt"],
+			attributes: [...selectRelevant, ["createdAt", "date"]],
 			include: {
 				model: Category,
 				required: true,
