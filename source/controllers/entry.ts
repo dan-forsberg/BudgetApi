@@ -90,6 +90,7 @@ const getSpecific = async (req: Request, res: Response): Promise<void> => {
 				required: true,
 				attributes: ["name"]
 			},
+			/* Order by CategoryId so everything is ordered consistently */
 			order: [
 				['CategoryId', 'ASC']
 			]
