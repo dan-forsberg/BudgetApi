@@ -8,6 +8,4 @@ var router = express_1.default.Router();
 router.get("/", category_1.default.getCategories);
 router.get("/get", category_1.default.getCategories);
 router.post("/new", category_1.default.newCategory);
-router.delete("/delete/:id", category_1.default.deleteCategory);
-router.patch("/update/:id", category_1.default.updateCategory);
 module.exports = router;

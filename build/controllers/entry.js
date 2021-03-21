@@ -55,6 +55,7 @@ var errors_1 = require("../interfaces/errors");
 var category_1 = require("../models/category");
 var entry_1 = require("../models/entry");
 var logging_1 = __importDefault(require("../config/logging"));
+var sequelize_2 = __importDefault(require("sequelize"));
 var workspace = "entry-ctrl";
 var selectRelevant = ["id", "date", "description", "amount"];
 var getAllEntries = function (_, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -92,7 +93,7 @@ var getAllEntries = function (_, res) { return __awaiter(void 0, void 0, void 0,
     });
 }); };
 var constructWhereQuery = function (req) {
-    var _a;
+    var _a, _b;
     var query = req.query;
     var result = {};
     // Date
@@ -107,6 +108,10 @@ var constructWhereQuery = function (req) {
             end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
         }
         result.date = (_a = {}, _a[sequelize_1.Op.between] = [start, end], _a);
+    }
+    else {
+        // if no date is requested, select the newest records
+        result.date = (_b = {}, _b[sequelize_1.Op.in] = sequelize_2.default.literal("(SELECT MAX(`date`) FROM `Entries`)"), _b);
     }
     if (query.category) {
         result.CategoryID = query.category;
@@ -139,7 +144,11 @@ var getSpecific = function (req, res) { return __awaiter(void 0, void 0, void 0,
                             model: category_1.Category,
                             required: true,
                             attributes: ["name"]
-                        }
+                        },
+                        /* Order by CategoryId so everything is ordered consistently */
+                        order: [
+                            ['CategoryId', 'ASC']
+                        ]
                     })];
             case 1:
                 result = _a.sent();
@@ -216,7 +225,7 @@ var updateEntry = function (req, res) { return __awaiter(void 0, void 0, void 0,
                 if (!entryRow) {
                     throw new errors_1.ParameterError("Could not find entry with ID " + entryToUpdateID);
                 }
-                parsedEntry = parseEntry(newEntry, true);
+                parsedEntry = parseEntry(newEntry);
                 return [4 /*yield*/, entryRow.update(parsedEntry)];
             case 3:
                 result = _a.sent();
@@ -275,8 +284,7 @@ var removeEntry = function (req, res) { return __awaiter(void 0, void 0, void 0,
 *   CategoryId: {id of Dan}
 * }, ...]
 */
-function parseEntry(entry, allowCatName) {
-    if (allowCatName === void 0) { allowCatName = false; }
+function parseEntry(entry) {
     if (entry === undefined || entry === null) {
         throw new errors_1.ParameterError("Entry is undefined or null.");
     }
@@ -285,12 +293,11 @@ function parseEntry(entry, allowCatName) {
     if (date === undefined ||
         description === undefined ||
         amount === undefined ||
-        (!allowCatName && CategoryId === undefined && Category.id === undefined) ||
-        (allowCatName && Category == undefined)) {
+        (Category === undefined && CategoryId === undefined && Category.id === undefined)) {
         throw new errors_1.ParameterError("Missing some parameter(s) in entry\n" + entry + ".");
     }
     /* Allow client to use category instead of CategoryId */
-    if (!allowCatName && Category.id && !CategoryId) {
+    if (Category.id && !CategoryId) {
         entry.CategoryId = Category.id;
     }
     return entry;

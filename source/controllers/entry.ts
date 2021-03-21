@@ -5,6 +5,7 @@ import { Category } from "../models/category";
 import { Entry } from "../models/entry";
 import logging from "../config/logging";
 import IEntry from "../interfaces/entry";
+import sequelize from "sequelize";
 
 const workspace = "entry-ctrl";
 const selectRelevant = ["id", "date", "description", "amount"];
@@ -56,6 +57,9 @@ const constructWhereQuery = (req: Request): WhereOptions => {
 		}
 
 		result.date = { [Op.between]: [start, end] };
+	} else {
+		// if no date is requested, select the newest records
+		result.date = { [Op.in]: sequelize.literal("(SELECT MAX(`date`) FROM `Entries`)") };
 	}
 
 	if (query.category) {
