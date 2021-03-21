@@ -89,7 +89,10 @@ const getSpecific = async (req: Request, res: Response): Promise<void> => {
 				model: Category,
 				required: true,
 				attributes: ["name"]
-			}
+			},
+			order: [
+				['CategoryId', 'ASC']
+			]
 		}) as any[]; // Typescript is being really annoying
 
 		const categories: string[] = [];
