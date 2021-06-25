@@ -5,7 +5,7 @@
 	"main": "source/server.ts",
 	"scripts": {
 		"build": "npx tsc",
-		"dev": "ts-node-dev -r dotenv/config source/server.ts",
+		"dev": "ts-node-dev source/server.ts",
 		"start": "node -r dotenv/config build/server.js",
 		"builddocker": "docker buildx build --platform linux/arm/v7 -t danforsberg/budgetapi . --push"
 	},
