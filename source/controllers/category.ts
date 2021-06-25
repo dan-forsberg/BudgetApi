@@ -9,8 +9,9 @@ const workspace = "category-ctrl";
 const getCategories = async (req: Request, res: Response): Promise<void> => {
 	try {
 		const categories = await Category.findAll(
-			{ attributes: ["id", "name"] }
+			{ attributes: ["id", "name", "continuousUpdate"] }
 		);
+
 		res.status(200).json({ categories: categories });
 	} catch (ex) {
 		logging.error(workspace, "Could not fetch categories", ex.message);

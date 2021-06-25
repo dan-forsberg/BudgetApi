@@ -15,7 +15,7 @@ const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 		// first get all the default entries
 		let { categories, entries } = await getDefaultEntries();
 		// figure out what categories are missing
-		let { otherCategories, otherEntries } = await getOtherCategoriesValues(categories);
+		let { categories: otherCategories, entries: otherEntries } = await getContinuousUpdateEntries();
 		// append the data
 		categories = [...categories, ...otherCategories];
 		entries = [...entries, ...otherEntries];
@@ -27,13 +27,31 @@ const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 	}
 };
 
+async function getContinuousUpdateEntries(): Promise<{ categories: string[], entries: any[]; }> {
+	const entries = await Entry.findAll({
+		attributes: [...selectRelevant, [sequelize.literal("NOW()"), "date"]],
+		include: {
+			model: Category,
+			required: true,
+			attributes: ["name", "id", "continuousUpdate"],
+			where: {
+				"continuousUpdate": {
+					[Op.is]: true
+				}
+			}
+		}
+	}) as any[];
+
+	return parseOutCategories(entries);
+}
+
 async function getDefaultEntries(): Promise<{ categories: string[], entries: any[]; }> {
 	const defaultEntries = await DefaultEntry.findAll({
 		attributes: [...selectRelevant, [sequelize.literal("NOW()"), "date"]],
 		include: {
 			model: Category,
 			required: true,
-			attributes: ["name", "id"]
+			attributes: ["name", "id", "continuousUpdate"]
 		}
 	}) as any[];
 
@@ -49,57 +67,6 @@ function parseOutCategories(result: any): { categories: string[], entries: any[]
 	});
 
 	return { categories, entries: result };
-}
-
-async function getOtherCategoriesValues(ignoreCategories: string[]):
-	Promise<{ otherCategories: string[], otherEntries: any[]; }> {
-	let { categories, ids } = await findOtherCategories(ignoreCategories);
-	let result: any[] = [];
-	try {
-		result = await Entry.findAll({
-			attributes: [...selectRelevant, [sequelize.literal("NOW()"), "date"]],
-			include: {
-				model: Category,
-				required: true,
-				attributes: ["name", "id"]
-			},
-			where: {
-				CategoryId: {
-					[Op.in]: ids
-				}
-			}
-		});
-	} catch (err) {
-		console.error(err);
-	}
-
-	return { otherCategories: categories, otherEntries: result };
-}
-
-async function findOtherCategories(ignoreCategories: string[]): Promise<{ categories: string[], ids: number[]; }> {
-	let categories: string[] = [];
-	let ids: number[] = [];
-
-	try {
-		const result = await Category.findAll({
-			attributes: ["name", "id"],
-			where: {
-				name: {
-					[Op.notIn]: ignoreCategories
-				}
-			}
-		});
-
-		result.forEach(category => {
-			categories.push(category.getDataValue("name"));
-			ids.push(category.getDataValue("id"));
-		});
-
-	} catch (err) {
-		console.error(err);
-	}
-
-	return { categories, ids };
 }
 
 const addEntry = async (req: Request, res: Response): Promise<void> => {
