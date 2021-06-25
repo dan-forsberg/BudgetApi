@@ -61,9 +61,8 @@ Returns: {rowsDeleted: x}
 
 
 * Todo/to implement
-- Add field to entries to show if an entry is constant, eg rent or food. 
-The idea is to make it order it first in the UI and to allow it to 
-automatically add these fields when making a new "budget".
+~~- Add field to entries to show if an entry is constant, eg rent or food. ~~
+Done!
 
--Make getSpecific support ranges.
-Eg, get all entries from /date/ to /date/ with amount between /x/ and /y/
+~~-Make getSpecific support ranges.~~
+Done!
