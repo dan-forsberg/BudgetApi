@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "npx tsc",
 		"dev": "ts-node-dev source/server.ts",
-		"start": "node -r dotenv/config build/server.js",
+		"start": "node build/server.js",
 		"builddocker": "docker buildx build --platform linux/arm/v7 -t danforsberg/budgetapi . --push"
 	},
 	"author": "Dan Forsberg",
