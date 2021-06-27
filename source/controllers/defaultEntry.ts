@@ -2,10 +2,12 @@ import { Request, Response } from "express";
 import sequelize from "sequelize";
 import { Op } from "sequelize";
 import logging from "../config/logging";
+import IEntry from "../interfaces/entry";
 import { ParameterError } from "../interfaces/errors";
 import { Category } from "../models/category";
 import { DefaultEntry } from "../models/defaultEntry";
 import { Entry } from "../models/entry";
+
 
 const workspace = "default-entry-ctrl";
 const selectRelevant = ["description", "amount"];

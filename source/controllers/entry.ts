@@ -37,9 +37,9 @@ const getAllEntries = async (_: Request, res: Response): Promise<void> => {
 	}
 };
 
+/* TODO: Select every ContinuousUpdate record, ignore date */
 const constructWhereQuery = (req: Request): WhereOptions => {
 	const query = req.query;
-
 	const result: WhereOptions = {};
 
 	// Date
@@ -56,7 +56,11 @@ const constructWhereQuery = (req: Request): WhereOptions => {
 			end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 		}
 
-		result.date = { [Op.between]: [start, end] };
+		result.date = {
+			[Op.between]: [start, end],
+		};
+
+
 	} else {
 		// if no date is requested, select the newest records
 		result.date = { [Op.in]: sequelize.literal("(SELECT MAX(`date`) FROM `Entries`)") };
